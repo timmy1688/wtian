@@ -16,12 +16,15 @@ services:
       - "8000:8000"
     environment:
       APP_NAME: "wtian"
-      DASHSCOPE_API_KEY: "sk-699e8f57dfbb4509a1f9fb06e8d485ab"
+      # 大语言模型推理服务推荐使用qwen3
+      DASHSCOPE_API_KEY: "sk-xxxxxxxxx"
       RD_HOST: "wtian-redis"
       RD_PORT: "6379"
       RD_DB: 0
       RD_PASSWORD: "123456"
+      #白名单IP
       WHITELIST_IPS: "127.0.0.1"
+      # 每天限制访问次数
       ACCESS_LIMIT_PER_DAY: 10
     command: ["gunicorn","-w","2","-k","uvicorn.workers.UvicornWorker","main:app","--bind","0.0.0.0:8000"]
     depends_on:
