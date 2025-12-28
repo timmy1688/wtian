@@ -17,6 +17,23 @@
 - Docker 一键部署，轻松本地运行或云部署
 - 支持多模型切换、历史记录、卦象可视化
 
+## 📸 效果展示
+
+### 首页
+![首页](images/shouye.png)
+
+### 八字排盘
+![八字排盘](images/bazi_paipan.png)
+
+### 八字分析
+![八字分析](images/bazi_fenxi.png)
+
+### 八卦起卦
+![八卦起卦](images/bagua_qigua.png)
+
+### 八卦分析
+![八卦分析](images/bagua_fenxi.png)
+
 ## 🏗️ 软件架构
 
 ```
