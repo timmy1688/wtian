@@ -10,20 +10,39 @@ app =APIRouter()
 
 
 
+
+
 # 定义请求体的模型
 class ZhanbuRequest(BaseModel):
     gender: str  # "boy" 或 "girl"
     demand: str  # 如 "问事业"
+
+class AnalysisRequest(BaseModel):
+    gender: str  # "boy" 或 "girl"
+    demand: str  # 如 "问事业"
+    hexagram_data: dict  # 卦象数据，包含 bengua 和 biangua 信息
     
 
+# 起卦接口
+@app.post("/zhanbu/cast_hexagram")
+async def cast_hexagram():
+    zhanbu = generate_hexagram()
+    print(zhanbu)
+    return {
+        "status": "success",
+        "hexagram_data": zhanbu
+    }
 
-@app.post("/zhanbu")
-async def zhanbu(request: ZhanbuRequest,ip_check=Depends(check_ip_access)):
+@app.post("/zhanbu/analyze_hexagram")
+async def analyze_hexagram(request: AnalysisRequest, ip_check=Depends(check_ip_access)):
+    print("!!!!!!!!!!!!!!!!!!!")
     print(ip_check)
     if ip_check["status"] == "limited":
         return ip_check
-    zhanbu = generate_hexagram()
+
+    zhanbu = request.hexagram_data
     print(zhanbu)
+
     # 从文件读取提示词模板
     template = await read_prompt("prompts/zhanbu.txt")
 

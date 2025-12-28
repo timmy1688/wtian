@@ -12,6 +12,7 @@ async def check_ip_access(request: Request, redis: aioredis.Redis = Depends(get_
     """检查 IP 访问限制"""
     client_ip = request.headers.get("x-real-ip") or request.client.host
     # print(f"ip: {client_ip}")
+    logger.info(f"WHITELIST_IPS: {WHITELIST_IPS}")
     logger.info(f"ip: {client_ip}")
     if client_ip in WHITELIST_IPS:
         return  {

@@ -17,20 +17,23 @@
           <li class="tech-item">
             <span class="tech-icon"><i class="iconfont icon-jishuzhichi"></i></span>
             <div class="tech-content">
-              <strong class="tech-name">核心技术解析：</strong>
+              <strong class="tech-name">实现原理：</strong>
               <p>
-                我们融合了<strong>公式测算</strong>、<strong>数百本易经名著 RAG (Retrieval-Augmented Generation) 技术</strong>以及 <strong>DeepSeek R1 大模型</strong>，
+                我们融合了<strong>传统易经算法</strong>、<strong>LangChain框架</strong>以及<strong>通义千问Qwen3大模型</strong>，
                 打造了智能、精准的易经命理分析系统。
               </p>
               <ul>
                 <li>
-                  <strong>公式测算：</strong> 基于传统八字命理的严谨公式，确保命盘分析的准确性。
+                  <strong>易经经典算法：</strong> 核心计算公式来源于《周易》、《易经正义》等经典著作，确保传统命理学的严谨性和准确性。
                 </li>
                 <li>
-                  <strong>RAG 增强：</strong> 通过 RAG 技术，模型能够从海量易经名著中检索相关知识，提供更全面深入的解读。
+                  <strong>LangChain智能链：</strong> 采用LangChain框架构建AI推理链路，实现易经知识的结构化处理和智能问答。
                 </li>
                 <li>
-                  <strong>DeepSeek R1 解读：</strong> 采用 DeepSeek R1 大模型对卦象进行深度解读，挖掘更深层次的含义，提供更具价值的建议。
+                  <strong>千问3深度解读：</strong> 集成通义千问Qwen3大模型，对卦象进行深度语义理解，提供富有哲理的个性化解读和建议。
+                </li>
+                <li>
+                  <strong>提示词工程：</strong> 精心设计的易经分析提示模板，确保AI输出符合传统易学精神和现代实用价值。
                 </li>
               </ul>
             </div>
