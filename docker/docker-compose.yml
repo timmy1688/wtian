@@ -11,7 +11,7 @@ services:
     command: redis-server /etc/redis.conf
   wtian-api:
     container_name: wtian-api
-    image: wtian-api:20250418
+    image: crpi-73k11wlq0reghi4z.cn-shenzhen.personal.cr.aliyuncs.com/litm/wtian-api:latest
     ports:
       - "8000:8000"
     environment:
