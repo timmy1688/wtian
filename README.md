@@ -10,7 +10,7 @@
 
 ## 🌐 在线体验
 
-立即体验问天AI：[http://wtian.cloud/](http://wtian.cloud/)
+立即体验问天AI：[https://wtian.cloud/](https://wtian.cloud/)
 
 ## 🌟 项目特色
 
@@ -123,3 +123,4 @@ npm run dev
 **问天AI** —— 让千年智慧遇见现代AI，古为今用，问道未来。
 
 如果觉得项目不错，欢迎点个 Star ✨ 支持一下！
+
