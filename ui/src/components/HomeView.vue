@@ -9,8 +9,23 @@
       </template>
       <div class="prose text-gray-700 leading-relaxed">
         <p class="text-lg intro-text">
-          欢迎踏入问天易经智能体的奇妙世界！在这里，我们融合了古老的东方智慧与尖端的人工智能技术，为你开启一场探索自我、洞察未来的旅程。准备好迎接“易经+大模型”带来的震撼体验了吗？
+          欢迎踏入问天易经智能体的奇妙世界！在这里，我们融合了古老的东方智慧与尖端的人工智能技术，为你开启一场探索自我、洞察未来的旅程。准备好迎接"易经+大模型"带来的震撼体验了吗？
         </p>
+
+        <div class="github-info">
+          <p class="text-sm text-gray-600 mb-2">
+            🌟 本项目开源免费，代码托管在 GitHub 上
+          </p>
+          <a
+            href="https://github.com/timmy1688/wtian"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="github-link-button"
+          >
+            <i class="iconfont icon-github"></i>
+            查看源码
+          </a>
+        </div>
 
         <h4 class="text-xl font-semibold mt-6 mb-3 text-indigo-800 section-title">技术亮点</h4>
         <ul class="tech-list">
@@ -115,6 +130,41 @@ export default {
   font-size: 1.1rem;
   color: #555;
   margin-bottom: 20px;
+}
+
+.github-info {
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background: linear-gradient(135deg, #f8f9ff, #e8f4fd);
+  border-radius: 8px;
+  border: 1px solid #e3f2fd;
+}
+
+.github-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #24292e, #1a1a1a);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(36, 41, 46, 0.3);
+}
+
+.github-link-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(36, 41, 46, 0.4);
+  background: linear-gradient(135deg, #1a1a1a, #24292e);
+}
+
+.github-link-button i {
+  font-size: 1rem;
 }
 
 .section-title {

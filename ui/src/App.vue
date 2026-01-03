@@ -2,6 +2,16 @@
   <a-layout class="layout">
     <a-layout-header class="header">
       <div class="logo">问天易经AI</div>
+      <!-- GitHub 链接 -->
+      <a
+        href="https://github.com/timmy1688/wtian"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="github-link"
+        title="访问 GitHub 项目"
+      >
+        <GithubOutlined />
+      </a>
       <!-- 移动端汉堡菜单按钮 -->
       <a-button
         class="menu-toggle"
@@ -84,6 +94,7 @@ import {
   CalculatorOutlined,
   CompassOutlined,
   MenuOutlined,
+  GithubOutlined,
 } from '@ant-design/icons-vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useWindowSize } from '@vueuse/core';
@@ -152,6 +163,26 @@ const handleMenuClick = ({ key }) => {
 
 .logo:hover {
   transform: scale(1.05);
+}
+
+.github-link {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+  margin-right: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.github-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
 }
 
 .transparent-menu {
@@ -228,6 +259,13 @@ const handleMenuClick = ({ key }) => {
   .logo {
     font-size: 18px;
     margin: 16px 16px 16px 0;
+  }
+
+  .github-link {
+    margin-right: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 
   .footer {

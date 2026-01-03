@@ -7,7 +7,7 @@ TAG=$(date +%Y%m%d)
 image=crpi-73k11wlq0reghi4z.cn-shenzhen.personal.cr.aliyuncs.com/litm/wtian-api
 
 echo "🔨 构建问天易经AI后端镜像... (Tag: $TAG)"
-cd api && docker build -t $image:$TAG .
+cd api && docker build  -t $image:$TAG .
 
 if [ $? -eq 0 ]; then
     echo "✅ 镜像构建成功: $image:$TAG"

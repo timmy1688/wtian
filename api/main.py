@@ -37,7 +37,19 @@ def create_app() -> FastAPI:
     # 允许跨域的来源，可以设置为前端的 URL 地址
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # 这里设置为前端地址，如果前端是用 React/Vue 的开发服务器，通常是 http://localhost:3000
+        allow_origins=[
+            "http://localhost:8080",      # 本地开发
+            "http://127.0.0.1:8080",      # 本地开发
+            "http://127.0.0.1:8000",      # 本地开发
+            "http://localhost:8000",      # 本地开发
+            "http://192.168.100.101:8000",      # 本地开发       
+            "https://wtian.cloud",        # HTTPS 域名
+            "http://wtian.cloud",         # HTTP 域名（重定向用）
+            "https://www.wtian.cloud",    # HTTPS www 域名
+            "http://www.wtian.cloud",     # HTTP www 域名
+            "https://47.107.237.220",     # HTTPS IP（如果直接访问）
+            "http://47.107.237.220",      # HTTP IP
+        ],  # 指定具体的域名，不能与 allow_credentials=True 同时使用通配符
         allow_credentials=True,
         allow_methods=["*"],  # 允许所有 HTTP 方法
         allow_headers=["*"],  # 允许所有请求头

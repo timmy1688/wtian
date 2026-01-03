@@ -16,8 +16,8 @@ cd ui && npm run build
 
 if [ $? -eq 0 ]; then
     echo "✅ 前端构建成功"
-    echo "📁 静态文件位置: ui/dist/"
-    ls -la ui/dist/
+    echo "📁 静态文件位置: dist/"
+    ls -la dist/
 else
     echo "❌ 前端构建失败"
     exit 1

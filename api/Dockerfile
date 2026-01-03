@@ -8,7 +8,6 @@ WORKDIR /wtian/api
 
 COPY . /wtian/api
 
-
 RUN pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
 #清理垃圾
