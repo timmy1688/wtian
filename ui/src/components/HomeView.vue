@@ -1,310 +1,697 @@
 <template>
   <div class="home-container">
-    <a-card class="w-full max-w-2xl mx-auto rounded-lg shadow-xl custom-card" hoverable>
-      <template #title>
-        <div class="card-title">
-          <h2 class="text-3xl font-extrabold text-indigo-700 mb-2 drop-shadow">问天易经智能体</h2>
-          <p class="text-md text-gray-500 tracking-wide">解密命理玄机，预见未来之路</p>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-icon">☯</div>
+        <h1 class="hero-title">问天易经智能体</h1>
+        <p class="hero-subtitle">让千年智慧遇见现代AI，古为今用，问道未来</p>
+        <div class="hero-tags">
+          <span class="tag">传统易经算法</span>
+          <span class="tag">LangChain框架</span>
+          <span class="tag">通义千问Qwen3</span>
         </div>
-      </template>
-      <div class="prose text-gray-700 leading-relaxed">
-        <p class="text-lg intro-text">
-          欢迎踏入问天易经智能体的奇妙世界！在这里，我们融合了古老的东方智慧与尖端的人工智能技术，为你开启一场探索自我、洞察未来的旅程。准备好迎接"易经+大模型"带来的震撼体验了吗？
-        </p>
-
-        <div class="github-info">
-          <p class="text-sm text-gray-600 mb-2">
-            🌟 本项目开源免费，代码托管在 GitHub 上
-          </p>
-          <a
-            href="https://github.com/timmy1688/wtian"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="github-link-button"
-          >
-            <i class="iconfont icon-github"></i>
-            查看源码
-          </a>
-        </div>
-
-        <h4 class="text-xl font-semibold mt-6 mb-3 text-indigo-800 section-title">技术亮点</h4>
-        <ul class="tech-list">
-          <li class="tech-item">
-            <span class="tech-icon"><i class="iconfont icon-jishuzhichi"></i></span>
-            <div class="tech-content">
-              <strong class="tech-name">实现原理：</strong>
-              <p>
-                我们融合了<strong>传统易经算法</strong>、<strong>LangChain框架</strong>以及<strong>通义千问Qwen3大模型</strong>，
-                打造了智能、精准的易经命理分析系统。
-              </p>
-              <ul>
-                <li>
-                  <strong>易经经典算法：</strong> 核心计算公式来源于《周易》、《易经正义》等经典著作，确保传统命理学的严谨性和准确性。
-                </li>
-                <li>
-                  <strong>LangChain智能链：</strong> 采用LangChain框架构建AI推理链路，实现易经知识的结构化处理和智能问答。
-                </li>
-                <li>
-                  <strong>千问3深度解读：</strong> 集成通义千问Qwen3大模型，对卦象进行深度语义理解，提供富有哲理的个性化解读和建议。
-                </li>
-                <li>
-                  <strong>提示词工程：</strong> 精心设计的易经分析提示模板，确保AI输出符合传统易学精神和现代实用价值。
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
-
-        <h4 class="text-xl font-semibold mt-6 mb-3 text-indigo-800 section-title">功能亮点</h4>
-        <ul class="feature-list">
-          <li class="feature-item">
-            <span class="feature-icon"><i class="iconfont icon-bazicehuan"></i></span>
-            <div class="feature-content">
-              <strong class="feature-name">八字乾坤</strong>：只需提供你的出生日期和性别，瞬间为你展开一幅精妙的八字命盘。
-              我们将深入剖析你的五行属性，揭示潜在的运势密码，为你的人生走向提供个性化的建议和指引。不再盲目摸索，让命运掌握在自己手中！
-            </div>
-          </li>
-          <li class="feature-item">
-            <span class="feature-icon"><i class="iconfont icon-qiguaizhanbu"></i></span>
-            <div class="feature-content">
-              <strong class="feature-name">六爻神卜</strong>：心怀疑惑，不知所向？ 通过神秘的易经六爻占卜，为你拨开迷雾，指点迷津。
-              无论是事业、爱情还是财运，我们将为你解读卦象，洞察未来趋势，助你做出明智的决策，趋吉避凶，成就辉煌人生！
-            </div>
-          </li>
-        </ul>
-
-        <p class="call-to-action">
-          还在犹豫什么？点击顶部导航栏，即刻开启你的专属命理探索之旅！让问天易经智能体成为你人生道路上的智慧伙伴，助你把握机遇，迎接挑战，创造属于自己的精彩篇章！
-        </p>
       </div>
-    </a-card>
+    </section>
+
+    <!-- 功能卡片 -->
+    <section class="features-section">
+      <h2 class="section-title">核心功能</h2>
+      <div class="feature-grid">
+        <div class="feature-card" @click="goToBazi">
+          <div class="feature-card-icon bagua-icon">
+            <div class="icon-inner">☯</div>
+            <div class="icon-subtitle">八字</div>
+          </div>
+          <h3 class="feature-card-title">八字乾坤</h3>
+          <p class="feature-card-desc">
+            只需提供出生日期和性别，瞬间为你展开精妙的八字命盘。深入剖析五行属性，揭示潜在的运势密码，为人生走向提供个性化的建议和指引。
+          </p>
+          <div class="feature-card-tags">
+            <span>排盘分析</span>
+            <span>五行解读</span>
+            <span>十神推演</span>
+          </div>
+          <div class="click-hint">点击进入 →</div>
+        </div>
+
+        <div class="feature-card" @click="goToGua">
+          <div class="feature-card-icon trigram-icon">
+            <div class="icon-inner">☷</div>
+            <div class="icon-subtitle">占卜</div>
+          </div>
+          <h3 class="feature-card-title">六爻神卜</h3>
+          <p class="feature-card-desc">
+            通过神秘的易经六爻占卜，为你拨开迷雾，指点迷津。无论是事业、爱情还是财运，解读卦象，洞察未来趋势，助你做出明智的决策。
+          </p>
+          <div class="feature-card-tags">
+            <span>64卦占卜</span>
+            <span>卦象解析</span>
+            <span>吉凶预测</span>
+          </div>
+          <div class="click-hint">点击进入 →</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技术亮点 -->
+    <section class="tech-section">
+      <h2 class="section-title">技术亮点</h2>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-card-icon">📚</div>
+            <h3>易经经典算法</h3>
+          </div>
+          <p>核心计算公式来源于《周易》、《易经正义》等经典著作，确保传统命理学的严谨性和准确性。</p>
+        </div>
+
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-card-icon">🔗</div>
+            <h3>LangChain智能链</h3>
+          </div>
+          <p>采用LangChain框架构建AI推理链路，实现易经知识的结构化处理和智能问答。</p>
+        </div>
+
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-card-icon">🤖</div>
+            <h3>千问3深度解读</h3>
+          </div>
+          <p>集成通义千问Qwen3大模型，对卦象进行深度语义理解，提供富有哲理的个性化解读。</p>
+        </div>
+
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="tech-card-icon">✨</div>
+            <h3>提示词工程</h3>
+          </div>
+          <p>精心设计的易经分析提示模板，确保AI输出符合传统易学精神和现代实用价值。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GitHub 开源 -->
+    <section class="github-section">
+      <div class="github-card">
+        <div class="github-icon">⭐</div>
+        <h3>开源免费项目</h3>
+        <p>本项目开源免费，代码托管在 GitHub 上，欢迎 Star 和贡献代码</p>
+        <a
+          href="https://github.com/timmy1688/wtian"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="github-button"
+        >
+          <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          访问 GitHub 项目
+        </a>
+      </div>
+    </section>
 
     <!-- 免责声明 -->
-    <div class="disclaimer">
-      <h3 class="font-semibold mb-2">免责声明</h3>
-      <p>
-        本网站提供的所有易经、命理、风水、占卜等相关信息，仅供娱乐参考，不可作为任何决策的依据。
-      </p>
-      <p>
-        本站内容，包括但不限于文字、图片、音频、视频等，均不构成任何形式的建议或保证。对于因使用本网站信息而产生的任何后果，本站概不负责。
-      </p>
-      <p>
-        请您在使用本站信息时，保持理性和审慎的态度，切勿迷信。命运掌握在自己手中，请相信科学，积极面对生活。
-      </p>
-      <p>
-        本站不对信息的准确性、完整性、及时性做出任何承诺。 任何依赖本站信息的行为，均由您个人承担风险。
-      </p>
-      <p>感谢您的理解与支持！</p>
-    </div>
+    <section class="disclaimer-section">
+      <div class="disclaimer-card">
+        <h3>⚠️ 免责声明</h3>
+        <div class="disclaimer-content">
+          <p>本网站提供的所有易经、命理、风水、占卜等相关信息，<strong>仅供娱乐参考</strong>，不可作为任何决策的依据。</p>
+          <p>本站内容均不构成任何形式的建议或保证。对于因使用本网站信息而产生的任何后果，本站概不负责。</p>
+          <p>请您在使用本站信息时，保持理性和审慎的态度，切勿迷信。<strong>命运掌握在自己手中</strong>，请相信科学，积极面对生活。</p>
+          <p class="disclaimer-note">感谢您的理解与支持！</p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
+import { useRouter } from 'vue-router';
+
 export default {
-  name: 'HomeView'
+  name: 'HomeView',
+  setup() {
+    const router = useRouter();
+
+    const goToBazi = () => {
+      router.push({ name: 'Bazi' });
+    };
+
+    const goToGua = () => {
+      router.push({ name: 'Gua' });
+    };
+
+    return {
+      goToBazi,
+      goToGua
+    };
+  }
 };
 </script>
 
 <style scoped>
-@import "//at.alicdn.com/t/c/font_4413711_q2o769l1v3.css";
-
 .home-container {
-  padding: 30px;
-  background: linear-gradient(to bottom, #f0f4ff, #ffffff); /* 渐变背景 */
+  width: 100%;
+  animation: fadeIn 0.6s ease-in-out;
 }
 
-.custom-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加过渡效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.custom-card:hover {
-  transform: translateY(-5px); /* 悬停时向上微移 */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* 加强阴影效果 */
-}
-
-.card-title {
+/* ========== Hero Section ========== */
+.hero-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 60px 40px;
+  margin-bottom: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   text-align: center;
-}
-
-.intro-text {
-  font-size: 1.1rem;
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.github-info {
-  text-align: center;
-  margin: 20px 0;
-  padding: 15px;
-  background: linear-gradient(135deg, #f8f9ff, #e8f4fd);
-  border-radius: 8px;
-  border: 1px solid #e3f2fd;
-}
-
-.github-link-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #24292e, #1a1a1a);
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(36, 41, 46, 0.3);
-}
-
-.github-link-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(36, 41, 46, 0.4);
-  background: linear-gradient(135deg, #1a1a1a, #24292e);
-}
-
-.github-link-button i {
-  font-size: 1rem;
-}
-
-.section-title {
   position: relative;
-  padding-bottom: 10px;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+  animation: pulse 15s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-icon {
+  font-size: 80px;
   margin-bottom: 20px;
+  animation: rotate 30s linear infinite;
+  display: inline-block;
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.hero-tags {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero-tags .tag {
+  display: inline-block;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.hero-tags .tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* ========== Section Title ========== */
+.section-title {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
 }
 
 .section-title::after {
-  content: "";
+  content: '';
   position: absolute;
+  bottom: -12px;
   left: 50%;
-  bottom: 0;
   transform: translateX(-50%);
-  width: 50px;
-  height: 3px;
-  background-color: #9fa8da; /* 分割线颜色 */
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 2px;
 }
 
-.feature-list {
-  list-style: none;
-  padding: 0;
+/* ========== Features Section ========== */
+.features-section {
+  margin-bottom: 60px;
 }
 
-.feature-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 25px;
-  padding: 15px;
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, 0.7); /* 半透明背景 */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* 轻微阴影 */
-  transition: background-color 0.3s ease; /* 添加过渡效果 */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
 }
 
-.feature-item:hover {
-  background-color: rgba(255, 255, 255, 0.9); /* 悬停时加深背景色 */
-}
-
-.feature-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #e8eaf6;
-  color: #5c6bc0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  margin-right: 20px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); /* 图标阴影 */
-}
-
-.feature-content {
-  flex: 1;
-}
-
-.feature-name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #3f51b5;
-  margin-bottom: 5px;
-  display: block;
-}
-
-.feature-description {
-  color: #777;
-}
-
-.call-to-action {
-  font-size: 1.1rem;
+.feature-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px 30px;
   text-align: center;
-  margin-top: 30px;
+  transition: all 0.4s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.feature-card:active {
+  transform: translateY(-5px);
+}
+
+.feature-card-icon {
+  position: relative;
+  margin-bottom: 20px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-card-icon .icon-inner {
+  font-size: 60px;
+  display: inline-block;
+  position: relative;
+}
+
+.feature-card-icon .icon-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #667eea;
+  margin-top: 8px;
+  letter-spacing: 2px;
+}
+
+/* 八字图标特效 - 太极旋转 */
+.bagua-icon .icon-inner {
+  animation: rotate 20s linear infinite;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 八卦图标特效 */
+.trigram-icon .icon-inner {
+  color: #764ba2;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.feature-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.feature-card-desc {
+  font-size: 15px;
   color: #666;
+  line-height: 1.8;
+  margin-bottom: 20px;
 }
 
-/* 免责声明样式 */
-.disclaimer {
-  border-top: 1px solid #e2e8f0;
-  padding-top: 1rem;
-  margin-top: 2rem;
-  text-align: center;
-  color: red;
-  font-size: 0.75rem;
-}
-
-.disclaimer h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.disclaimer p {
-  margin-bottom: 0.25rem;
-}
-
-/* 技术亮点样式 */
-.tech-list {
-  list-style: none;
-  padding: 0;
-}
-
-.tech-item {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 25px;
-  padding: 15px;
-  border-radius: 10px;
-  background-color: rgba(240, 244, 255, 0.7); /* 浅色背景 */
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
-.tech-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #d1c4e9; /* 浅紫色 */
-  color: #673ab7; /* 深紫色 */
+.feature-card-tags {
   display: flex;
   justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  margin-right: 20px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.tech-content {
-  flex: 1;
+.feature-card-tags span {
+  padding: 6px 14px;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.tech-content ul {
-  list-style: disc;
-  padding-left: 20px;
-  margin-top: 10px;
-}
-
-.tech-name {
-  font-size: 1.2rem;
+/* 点击提示 */
+.click-hint {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: 600;
-  color: #5e35b1; /* 深紫色 */
-  margin-bottom: 5px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .click-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== Tech Section ========== */
+.tech-section {
+  margin-bottom: 60px;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.tech-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.tech-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.15);
+}
+
+.tech-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tech-card-icon {
+  font-size: 32px;
+}
+
+.tech-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.tech-card p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ========== GitHub Section ========== */
+.github-section {
+  margin-bottom: 40px;
+}
+
+.github-card {
+  background: linear-gradient(135deg, #24292e 0%, #1a1a1a 100%);
+  border-radius: 20px;
+  padding: 50px 40px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.github-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+}
+
+.github-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.github-card h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.github-card p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.github-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: white;
+  color: #24292e;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.github-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+}
+
+/* ========== Disclaimer Section ========== */
+.disclaimer-section {
+  margin-bottom: 20px;
+}
+
+.disclaimer-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  border-left: 4px solid #ff6b6b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.disclaimer-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.disclaimer-content {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.8;
+}
+
+.disclaimer-content p {
+  margin-bottom: 12px;
+}
+
+.disclaimer-content strong {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.disclaimer-note {
+  font-weight: 600;
+  color: #333;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 24px;
+    border-radius: 16px;
+  }
+
+  .hero-icon {
+    font-size: 60px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .section-title {
+    font-size: 26px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 30px 20px;
+  }
+
+  .feature-card-icon {
+    height: 80px;
+  }
+
+  .feature-card-icon .icon-inner {
+    font-size: 50px;
+  }
+
+  .tech-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .github-card {
+    padding: 40px 24px;
+    border-radius: 16px;
+  }
+
+  .github-icon {
+    font-size: 50px;
+  }
+
+  .github-card h3 {
+    font-size: 24px;
+  }
+
+  .disclaimer-card {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 30px 20px;
+  }
+
+  .hero-icon {
+    font-size: 50px;
+  }
+
+  .feature-card-icon {
+    height: 70px;
+  }
+
+  .feature-card-icon .icon-inner {
+    font-size: 45px;
+  }
+
+  .hero-title {
+    font-size: 26px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  .hero-tags {
+    gap: 8px;
+  }
+
+  .hero-tags .tag {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+
+  .section-title {
+    font-size: 22px;
+  }
+
+  .feature-card-title {
+    font-size: 20px;
+  }
+
+  .github-button {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
 }
 </style>
