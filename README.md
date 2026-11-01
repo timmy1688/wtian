@@ -24,23 +24,20 @@
 
 ## 📸 效果展示
 
-### 首页
-![首页](images/shouye.png)
-
-### 八字排盘
-![八字排盘](images/bazi_paipan.png)
-
-### 八字解读
-![八字解读](images/bazi_fenxi.png)
-
-### 六爻起卦
-![六爻起卦](images/bagua_qigua.png)
-
-### 六爻解读
-![六爻解读](images/bagua_fenxi.png)
-
-### 手机端
-<img src="images/mobile.png" alt="手机端" width="320">
+<table>
+  <tr>
+    <td colspan="2" align="center"><b>首页</b><br><img src="images/screenshots/home.png" alt="首页"></td>
+    <td rowspan="3" align="center" width="24%"><b>手机端</b><br><img src="images/screenshots/mobile.png" alt="手机端"></td>
+  </tr>
+  <tr>
+    <td align="center" width="38%"><b>八字排盘</b><br><img src="images/screenshots/bazi-chart.png" alt="八字排盘"></td>
+    <td align="center" width="38%"><b>八字解读</b><br><img src="images/screenshots/bazi-reading.png" alt="八字解读"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>六爻起卦</b><br><img src="images/screenshots/gua-cast.png" alt="六爻起卦"></td>
+    <td align="center"><b>六爻解读</b><br><img src="images/screenshots/gua-reading.png" alt="六爻解读"></td>
+  </tr>
+</table>
 
 ## 🏗️ 软件架构
 
