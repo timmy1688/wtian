@@ -1,88 +1,85 @@
-from fastapi import APIRouter,Depends
+from typing import Optional
+
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
-from langchain.prompts import PromptTemplate
-from langchain.schema import HumanMessage
-from utils.commom import logger,read_prompt,chat
+
+from suanfa.qigua import pai_gua, qi_gua
 from utils.access_limit import check_ip_access
-from .zhanbu import generate_hexagram
+from utils.commom import chat, logger
+from utils.prompting import build_messages
+from utils.streaming import sse_response
+from .prompt import FOCUS_KEYS, normalize_focus, render_user_message
 
-app =APIRouter()
+app = APIRouter()
 
+LEGACY_DEMAND_SEPARATORS = ("：", ":")
 
-
-
-
-# 定义请求体的模型
-class ZhanbuRequest(BaseModel):
-    gender: str  # "boy" 或 "girl"
-    demand: str  # 如 "问事业"
 
 class AnalysisRequest(BaseModel):
     gender: str  # "boy" 或 "girl"
-    demand: str  # 如 "问事业"
-    hexagram_data: dict  # 卦象数据，包含 bengua 和 biangua 信息
-    
+    hexagram_data: dict  # 卦象数据，仅采用 bengua.yao 与 bengua.dongyao，卦名由服务端重新推出
+    category: Optional[str] = None  # 占卜事项，如 "事业"
+    question: Optional[str] = None  # 具体问题（选填）
+    demand: Optional[str] = None  # 兼容旧版前端："事项：具体问题"
+
+
+def resolve_question(request: AnalysisRequest) -> tuple:
+    if request.category:
+        return normalize_focus(request.category), request.question or ""
+    demand = (request.demand or "").strip()
+    for sep in LEGACY_DEMAND_SEPARATORS:
+        if sep in demand:
+            category, question = demand.split(sep, 1)
+            return normalize_focus(category), question
+    return normalize_focus(demand), ""
+
+
+def rebuild_hexagram(hexagram_data: dict) -> dict:
+    try:
+        bengua = hexagram_data["bengua"]
+        return pai_gua([int(v) for v in bengua["yao"]], [int(p) for p in bengua.get("dongyao", [])])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail=f"卦象数据不合法：{exc}")
+
+
+def build_analysis_messages(request: AnalysisRequest, hexagram: dict) -> list:
+    focus, question = resolve_question(request)
+    content = render_user_message(hexagram, request.gender, focus, question)
+    return build_messages("zhanbu", FOCUS_KEYS[focus], content)
+
 
 # 起卦接口
 @app.post("/zhanbu/cast_hexagram")
 async def cast_hexagram():
-    zhanbu = generate_hexagram()
-    print(zhanbu)
     return {
         "status": "success",
-        "hexagram_data": zhanbu
+        "hexagram_data": qi_gua()
     }
+
 
 @app.post("/zhanbu/analyze_hexagram")
 async def analyze_hexagram(request: AnalysisRequest, ip_check=Depends(check_ip_access)):
-    print("!!!!!!!!!!!!!!!!!!!")
-    print(ip_check)
+    logger.info(ip_check)
     if ip_check["status"] == "limited":
         return ip_check
-
-    zhanbu = request.hexagram_data
-    print(zhanbu)
-
-    # 从文件读取提示词模板
-    template = await read_prompt("prompts/zhanbu.txt")
-
-    # 创建 PromptTemplate
-    prompt = PromptTemplate(
-        input_variables=["gender", "demand", "gua", "ben_xiagua", "ben_shanggua", "dongyao","biangua","bian_xiagua","bian_shangua"],
-        template=template
-    )
-
-    # 填充模板
-    input_prompt = prompt.format(
-        gender=request.gender,
-        demand=request.demand,
-        gua=zhanbu["bengua"]["gua"],
-        ben_xiagua=zhanbu["bengua"]["xiagua"],
-        ben_shanggua=zhanbu["bengua"]["shanggua"],
-        dongyao=zhanbu["bengua"]["dongyao"],
-        biangua=zhanbu["biangua"]["gua"],
-        bian_xiagua=zhanbu["biangua"]["xiagua"],
-        bian_shangua=zhanbu["biangua"]["shanggua"]
-    )
-
-    # 定义消息
-    messages = [
-        HumanMessage(content=input_prompt),  # 使用填充后的提示词
-    ]
-
-    # 调用模型
-    response = await chat.ainvoke(messages)
-
-    # 打印响应内容（可选，用于调试）
-    print(response.content)
+    hexagram = rebuild_hexagram(request.hexagram_data)
+    response = await chat.ainvoke(build_analysis_messages(request, hexagram))
     return {
         "status": "success",
         "gender": request.gender,
         "demand": request.demand,
-        "gua": zhanbu["bengua"]["gua"],
-        "dongyao": zhanbu["bengua"]["dongyao"],
-        "biangua":zhanbu["biangua"]["gua"],
+        "gua": hexagram["bengua"]["gua"],
+        "dongyao": hexagram["bengua"]["dongyao"],
+        "biangua": hexagram["biangua"]["gua"],
         "result": response.content
     }
 
 
+@app.post("/zhanbu/analyze_hexagram/stream")
+async def analyze_hexagram_stream(request: AnalysisRequest, ip_check=Depends(check_ip_access)):
+    logger.info(ip_check)
+    if ip_check["status"] == "limited":
+        return ip_check
+    hexagram = rebuild_hexagram(request.hexagram_data)
+    return sse_response(build_analysis_messages(request, hexagram), tag="zhanbu")

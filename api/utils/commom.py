@@ -4,16 +4,21 @@ import os
 
 logger = logs.getLogger(os.environ.get('APP_NAME'))
 
-base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "").strip()
+if not DEEPSEEK_API_KEY:
+    raise RuntimeError("DEEPSEEK_API_KEY is not set, please configure it in api/.env or the environment")
 
-# 创建 ChatOpenAI 实例，用于调用 Qwen Max
+DEEPSEEK_BASE_URL = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+DEEPSEEK_MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
+# DeepSeek v4 thinks before answering by default; "disabled" answers directly and much faster
+DEEPSEEK_THINKING = os.environ.get("DEEPSEEK_THINKING", "disabled")
+
+# 创建 ChatOpenAI 实例，通过 OpenAI 兼容协议调用 DeepSeek
 chat = ChatOpenAI(
-    model="qwen-max",  # 使用 Qwen Max 模型
-    openai_api_key=os.environ["DASHSCOPE_API_KEY"],  # 从环境变量获取 API Key
-    openai_api_base=base_url,  # 设置 base_url
+    model=DEEPSEEK_MODEL,
+    openai_api_key=DEEPSEEK_API_KEY,
+    openai_api_base=DEEPSEEK_BASE_URL,
+    timeout=float(os.environ.get("DEEPSEEK_TIMEOUT", 110)),
+    max_retries=2,
+    extra_body={"thinking": {"type": DEEPSEEK_THINKING}},
 )
-
-# 读取提示词文件的异步函数
-async def read_prompt(file_path: str) -> str:
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()

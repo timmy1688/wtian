@@ -34,8 +34,17 @@ def global_request_exception_handler(request: Request, exc):
     :return:
     """
 
+    # Pydantic v2 puts the raised exception object into error["ctx"], which is not JSON serializable
+    error = exc.errors()[0]
+    err_msg = {
+        'type': error.get('type'),
+        'loc': list(error.get('loc', ())),
+        'msg': error.get('msg'),
+    }
+    logger.warning(f"请求参数校验失败：{err_msg}")
+
     return JSONResponse({
         'code': status.HTTP_400_BAD_REQUEST,
-        'err_msg': exc.errors()[0],
+        'err_msg': err_msg,
         'status': 'Failed'
     })

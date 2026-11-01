@@ -34,6 +34,10 @@ def create_app() -> FastAPI:
         config=REDIS,
     )
     
+    # 注册中间件函数（后注册的在外层，CORS 必须最后注册以包住异常响应）
+    http_middleware = app.middleware('http')
+    http_middleware(middleware.log_requests)
+
     # 允许跨域的来源，可以设置为前端的 URL 地址
     app.add_middleware(
         CORSMiddleware,
@@ -58,10 +62,6 @@ def create_app() -> FastAPI:
     # 注册路由
     app.include_router(bazi_app)
     app.include_router(zhanbu_app)
-    
-    # 注册中间件函数
-    http_middleware = app.middleware('http')
-    http_middleware(middleware.log_requests)
 
     return app
 

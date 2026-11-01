@@ -26,3 +26,6 @@ coverage.xml
 *.swp
 *.swo
 *~
+.env
+.env.*
+evals/output

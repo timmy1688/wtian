@@ -1,514 +1,387 @@
 <template>
-  <div class="app-container">
-    <!-- 导航栏 -->
-    <header class="modern-header">
-      <div class="header-content">
-        <div class="logo-section" @click="goToRoute('Home')">
-          <div class="logo-icon">☯</div>
-          <div class="logo-text">
-            <div class="logo-title">问天易经</div>
-            <div class="logo-subtitle">AI智能体</div>
-          </div>
-        </div>
-        
-        <!-- 桌面端导航 -->
-        <nav v-if="!isMobile" class="desktop-nav">
-          <a
-            v-for="item in navItems"
-            :key="item.key"
-            :class="['nav-item', { active: isActive(item.key) }]"
-            @click="goToRoute(item.route)"
-          >
-            <component :is="item.icon" class="nav-icon" />
-            <span>{{ item.label }}</span>
-          </a>
-        </nav>
+  <a-config-provider :locale="zhCN" :theme="themeConfig">
+    <div class="app-container">
+      <div class="backdrop" aria-hidden="true">
+        <TaijiSymbol
+          class="backdrop__taiji"
+          :size="isMobile ? 560 : 1080"
+          variant="line"
+          bagua
+          :spin="!isMobile"
+        />
+      </div>
 
-        <div class="header-actions">
-          <!-- GitHub 链接 -->
+      <header class="site-header">
+        <div class="header-content">
+          <router-link :to="{ name: 'Home' }" class="logo" aria-label="返回首页">
+            <TaijiSymbol :size="isMobile ? 22 : 26" />
+            <span class="logo__title">问天</span>
+          </router-link>
+
+          <nav v-if="!isMobile" class="desktop-nav" aria-label="主导航">
+            <router-link
+              v-for="item in navItems"
+              :key="item.key"
+              :to="{ name: item.route }"
+              :class="['nav-item', { active: isActive(item.route) }]"
+              :aria-current="isActive(item.route) ? 'page' : undefined"
+            >
+              {{ item.label }}
+            </router-link>
+          </nav>
+
           <a
             href="https://github.com/timmy1688/wtian"
             target="_blank"
             rel="noopener noreferrer"
             class="github-link"
             title="访问 GitHub 项目"
+            aria-label="访问 GitHub 项目"
           >
             <GithubOutlined />
           </a>
-          
-          <!-- 移动端菜单按钮 -->
-          <a-button
-            v-if="isMobile"
-            class="menu-toggle"
-            type="text"
-            @click="toggleDrawer"
-          >
-            <MenuOutlined />
-          </a-button>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <!-- 移动端抽屉菜单 -->
-    <a-drawer
-      title="导航菜单"
-      placement="right"
-      :visible="drawerVisible"
-      @close="toggleDrawer"
-      :bodyStyle="{ padding: 0 }"
-    >
-      <div class="mobile-menu">
-        <a
-          v-for="item in navItems"
-          :key="item.key"
-          :class="['mobile-nav-item', { active: isActive(item.key) }]"
-          @click="handleMenuClick(item.route)"
-        >
-          <component :is="item.icon" class="mobile-nav-icon" />
-          <span>{{ item.label }}</span>
-        </a>
-      </div>
-    </a-drawer>
+      <main class="main-content">
+        <div class="content-container">
+          <router-view v-slot="{ Component }">
+            <transition name="fade-slide" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </div>
+      </main>
 
-    <!-- 主内容区 -->
-    <main class="main-content">
-      <div class="content-container">
-        <router-view v-slot="{ Component }">
-          <transition name="fade-slide" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </div>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="modern-footer">
-      <div class="footer-content">
-        <div class="footer-info">
-          <p class="footer-title">问天易经AI - 让千年智慧遇见现代科技</p>
-          <p class="footer-description">
-            融合传统易经算法与大语言模型，为您提供专业的命理分析服务
+      <footer class="site-footer">
+        <div class="footer-content">
+          <p class="footer-motto">道法自然</p>
+          <p class="footer-note">
+            内容仅供娱乐参考，请理性看待 ·
+            <a href="https://github.com/timmy1688/wtian" target="_blank" rel="noopener noreferrer">开源</a>
           </p>
         </div>
-        <div class="footer-links">
-          <a href="https://github.com/timmy1688/wtian" target="_blank" rel="noopener noreferrer">
-            <GithubOutlined /> GitHub
-          </a>
-        </div>
-        <div class="footer-copyright">
-          © 2024-2026 问天易经AI. All rights reserved.
-        </div>
-      </div>
-    </footer>
-  </div>
+      </footer>
+
+      <!-- 移动端底部导航 -->
+      <nav v-if="isMobile" class="tabbar" aria-label="底部导航">
+        <router-link
+          v-for="item in navItems"
+          :key="item.key"
+          :to="{ name: item.route }"
+          :class="['tabbar__item', { active: isActive(item.route) }]"
+          :aria-current="isActive(item.route) ? 'page' : undefined"
+        >
+          <span class="tabbar__glyph" aria-hidden="true">{{ item.glyph }}</span>
+          <span class="tabbar__label">{{ item.shortLabel }}</span>
+        </router-link>
+      </nav>
+    </div>
+  </a-config-provider>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import {
-  HomeOutlined,
-  CalculatorOutlined,
-  CompassOutlined,
-  MenuOutlined,
-  GithubOutlined,
-} from '@ant-design/icons-vue';
-import { useRouter, useRoute } from 'vue-router';
+import { computed } from 'vue';
+import { theme } from 'ant-design-vue';
+import { GithubOutlined } from '@ant-design/icons-vue';
+import { useRoute } from 'vue-router';
 import { useWindowSize } from '@vueuse/core';
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import TaijiSymbol from './components/common/TaijiSymbol.vue';
 
-const router = useRouter();
+const MOBILE_BREAKPOINT = 768;
+
+// Keep in sync with the CSS variables in global.css
+const themeConfig = {
+  algorithm: theme.darkAlgorithm,
+  token: {
+    colorPrimary: '#c3a46e',
+    colorLink: '#c3a46e',
+    colorInfo: '#c3a46e',
+    colorWarning: '#c3a46e',
+    colorError: '#c0543d',
+    colorText: '#ece6da',
+    colorTextSecondary: '#b8b1a4',
+    colorTextTertiary: '#7c766c',
+    colorTextLightSolid: '#11110f',
+    colorBorder: 'rgba(236, 230, 218, 0.16)',
+    colorBorderSecondary: 'rgba(236, 230, 218, 0.08)',
+    colorBgBase: '#0b0b0a',
+    colorBgContainer: '#151513',
+    colorBgElevated: '#1a1a17',
+    borderRadius: 2,
+    boxShadow: 'none',
+    fontFamily: "'PingFang SC', 'HarmonyOS Sans SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif",
+  },
+};
+
 const route = useRoute();
 
-// 检测屏幕是否为移动端
 const { width } = useWindowSize();
-const isMobile = computed(() => width.value <= 768);
+const isMobile = computed(() => width.value <= MOBILE_BREAKPOINT);
 
-// 导航菜单项
 const navItems = [
-  { key: 'home', label: '首页', icon: HomeOutlined, route: 'Home' },
-  { key: 'bazi', label: '八字测算', icon: CalculatorOutlined, route: 'Bazi' },
-  { key: 'gua', label: '64卦占卜', icon: CompassOutlined, route: 'Gua' },
+  { key: 'home', label: '首页', shortLabel: '问天', glyph: '道', route: 'Home' },
+  { key: 'bazi', label: '八字', shortLabel: '八字', glyph: '命', route: 'Bazi' },
+  { key: 'gua', label: '六爻', shortLabel: '六爻', glyph: '卜', route: 'Gua' },
 ];
 
-// 控制抽屉显示
-const drawerVisible = ref(false);
-const toggleDrawer = () => {
-  drawerVisible.value = !drawerVisible.value;
-};
-
-// 判断当前路由是否激活
-const isActive = (key) => {
-  const routeName = route.name?.toLowerCase() || 'home';
-  return routeName === key;
-};
-
-// 路由跳转
-const goToRoute = (routeName) => {
-  router.push({ name: routeName });
-  if (isMobile.value) {
-    drawerVisible.value = false;
-  }
-};
-
-// 处理移动端菜单点击
-const handleMenuClick = (routeName) => {
-  goToRoute(routeName);
-};
+const isActive = (routeName) => route.name === routeName;
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 .app-container {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  position: relative;
+  padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
 }
 
-.app-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+/* ========== Backdrop: ink darkness with one faint, slowly turning taiji ========== */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse 70% 60% at 50% 30%, #141412 0%, var(--bg) 70%, #070706 100%);
 }
 
-/* ========== 导航栏 ========== */
-.modern-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+.backdrop__taiji {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -540px 0 0 -540px;
+  opacity: 0.07;
+}
+
+/* ========== Header ========== */
+.site-header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: all 0.3s ease;
+  background: rgba(11, 11, 10, 0.97);
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .header-content {
-  max-width: 1400px;
+  max-width: 1100px;
+  height: var(--header-height);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  gap: 16px;
 }
 
-.logo-section {
+.logo {
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
+  gap: 14px;
+  text-decoration: none;
 }
 
-.logo-section:hover {
-  transform: translateY(-2px);
-}
-
-.logo-icon {
-  font-size: 36px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: rotate 20s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.logo-title {
+.logo__title {
+  font-family: var(--font-serif);
   font-size: 20px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.2;
-}
-
-.logo-subtitle {
-  font-size: 11px;
-  color: #999;
-  font-weight: 500;
-  letter-spacing: 1px;
+  font-weight: 600;
+  letter-spacing: 10px;
+  color: var(--text);
 }
 
 .desktop-nav {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 48px;
 }
 
 .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  color: #555;
-  cursor: pointer;
-  transition: all 0.3s ease;
   position: relative;
+  padding: 6px 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.4s var(--ease);
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transform: translateX(-50%);
+  transition: width 0.4s var(--ease);
 }
 
 .nav-item:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  color: var(--text);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  color: var(--text);
 }
 
-.nav-icon {
-  font-size: 18px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.nav-item.active::after {
+  width: 16px;
 }
 
 .github-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #24292e 0%, #1a1a1a 100%);
-  color: white;
-  font-size: 20px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  width: 32px;
+  height: 32px;
+  color: var(--text-muted);
+  font-size: 16px;
+  transition: color 0.3s var(--ease);
 }
 
 .github-link:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  color: var(--text);
 }
 
-.menu-toggle {
-  color: #667eea;
-  font-size: 24px;
-  border: none;
-}
-
-/* ========== 移动端菜单 ========== */
-.mobile-menu {
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-}
-
-.mobile-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  margin-bottom: 8px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #555;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.mobile-nav-item:hover,
-.mobile-nav-item.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  transform: translateX(8px);
-}
-
-.mobile-nav-icon {
-  font-size: 20px;
-}
-
-/* ========== 主内容区 ========== */
+/* ========== Main ========== */
 .main-content {
-  flex: 1;
   position: relative;
   z-index: 1;
-  padding: 32px 0;
+  flex: 1;
+  padding: 56px 0 80px;
 }
 
 .content-container {
-  max-width: 1200px;
+  max-width: 920px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 32px;
 }
 
-/* ========== 页面过渡动画 ========== */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease;
-}
-
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-/* ========== 页脚 ========== */
-.modern-footer {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+/* ========== Footer ========== */
+.site-footer {
   position: relative;
   z-index: 1;
+  border-top: 1px solid var(--line-soft);
 }
 
 .footer-content {
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 24px 24px;
+  padding: 36px 24px 32px;
   text-align: center;
 }
 
-.footer-info {
-  margin-bottom: 20px;
+.footer-motto {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 12px;
+  color: var(--text-soft);
+  margin-bottom: 12px;
 }
 
-.footer-title {
-  font-size: 18px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 8px;
+.footer-note {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
 }
 
-.footer-description {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.6;
-}
-
-.footer-links {
-  margin-bottom: 16px;
-}
-
-.footer-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #667eea;
+.footer-note a {
+  color: var(--text-soft);
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
 }
 
-.footer-links a:hover {
-  color: #764ba2;
-  transform: translateY(-2px);
+.footer-note a:hover {
+  color: var(--text);
 }
 
-.footer-copyright {
-  font-size: 13px;
-  color: #999;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
+/* ========== Mobile tab bar ========== */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(11, 11, 10, 0.96);
+  border-top: 1px solid var(--line-soft);
 }
 
-/* ========== 响应式设计 ========== */
+.tabbar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: color 0.3s var(--ease);
+}
+
+.tabbar__item::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transform: translateX(-50%);
+  transition: width 0.3s var(--ease);
+}
+
+.tabbar__glyph {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.tabbar__label {
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+.tabbar__item.active {
+  color: var(--text);
+}
+
+.tabbar__item.active::before {
+  width: 24px;
+}
+
+/* ========== Responsive ========== */
 @media (max-width: 768px) {
   .header-content {
-    height: 60px;
-    padding: 0 16px;
+    padding: 0 18px;
   }
 
-  .logo-icon {
-    font-size: 28px;
-  }
-
-  .logo-title {
-    font-size: 16px;
-  }
-
-  .logo-subtitle {
-    font-size: 10px;
-  }
-
-  .github-link {
-    width: 36px;
-    height: 36px;
+  .logo__title {
     font-size: 18px;
+    letter-spacing: 8px;
   }
 
   .main-content {
-    padding: 20px 0;
+    padding: 28px 0 40px;
   }
 
   .content-container {
-    padding: 0 16px;
+    padding: 0 14px;
   }
 
   .footer-content {
-    padding: 24px 16px 16px;
+    padding: 26px 16px 22px;
   }
 
-  .footer-title {
-    font-size: 16px;
-  }
-
-  .footer-description {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo-section {
-    gap: 8px;
-  }
-
-  .logo-icon {
-    font-size: 24px;
-  }
-
-  .logo-title {
-    font-size: 14px;
-  }
-
-  .logo-subtitle {
-    display: none;
-  }
-
-  .content-container {
-    padding: 0 12px;
+  .backdrop__taiji {
+    top: 18%;
+    margin: -280px 0 0 -280px;
   }
 }
 </style>

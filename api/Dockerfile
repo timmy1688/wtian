@@ -15,5 +15,5 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8000
 
-# 定义启动命令
-CMD ["bash", "run-dev.sh"]
+# 启动命令（docker-compose.yml 中的 command 会覆盖它）
+CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]

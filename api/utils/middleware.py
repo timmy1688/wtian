@@ -1,4 +1,5 @@
 import os, time
+from fastapi.responses import JSONResponse
 from .logs import getLogger
 
 
@@ -12,7 +13,12 @@ async def log_requests(request, call_next):
     logger = getLogger(os.environ.get('APP_NAME'))
     start_time = time.time()
 
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        # Must stay inside CORSMiddleware: a bare 500 without CORS headers is reported by browsers as a network error
+        logger.exception(f"unhandled error path={request.url.path}: {exc}")
+        response = JSONResponse(status_code=500, content={"status": "error", "message": "服务器内部错误，请稍后再试"})
 
     process_time = (time.time() - start_time) * 1000
     formatted_process_time = '{0:.2f}'.format(process_time)
