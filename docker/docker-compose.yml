@@ -1,68 +1,67 @@
-version : '3.8'
+# 生产部署：在服务器的部署目录（默认 ~）执行 `sudo docker compose up -d`
+# 密钥与版本号写在同目录 .env（参考 .env.example），勿提交到仓库
+# 目录约定：./nginx/{conf,dist,logs}、./redis/{conf,data}，证书由宿主机 certbot 维护于 /etc/letsencrypt
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "3"
+
 services:
   wtian-redis:
     container_name: wtian-redis
     image: redis:6.2
+    restart: unless-stopped
+    # Only the host may reach redis; containers use the compose network
     ports:
-      - "16666:6379"
+      - "127.0.0.1:16666:6379"
     volumes:
       - ./redis/conf/redis.conf:/etc/redis.conf
       - ./redis/data:/data
     command: redis-server /etc/redis.conf
+    logging: *default-logging
+
   wtian-api:
     container_name: wtian-api
-    image: crpi-73k11wlq0reghi4z.cn-shenzhen.personal.cr.aliyuncs.com/litm/wtian-api:latest
+    image: "${API_IMAGE:-crpi-73k11wlq0reghi4z.cn-shenzhen.personal.cr.aliyuncs.com/litm/wtian-api}:${API_TAG:-latest}"
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       APP_NAME: "wtian"
-      # 大语言模型推理使用 DeepSeek，key 写在本目录 .env 中（DEEPSEEK_API_KEY=sk-...），勿提交到仓库
-      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY}"
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY:?DEEPSEEK_API_KEY is required in .env}"
       DEEPSEEK_BASE_URL: "https://api.deepseek.com"
-      DEEPSEEK_MODEL: "deepseek-v4-flash"
+      DEEPSEEK_MODEL: "${DEEPSEEK_MODEL:-deepseek-v4-flash}"
       DEEPSEEK_THINKING: "disabled"
       RD_HOST: "wtian-redis"
       RD_PORT: "6379"
-      RD_DB: 0
-      RD_PASSWORD: "123456"
-      #白名单IP
-      WHITELIST_IPS: "127.0.0.1"
-      # 每天限制访问次数
-      ACCESS_LIMIT_PER_DAY: 10
-    command: ["gunicorn","-w","2","-k","uvicorn.workers.UvicornWorker","main:app","--bind","0.0.0.0:8000"]
+      RD_DB: "0"
+      RD_PASSWORD: "${RD_PASSWORD:?RD_PASSWORD is required in .env}"
+      # 白名单 IP 不受每日次数限制，逗号分隔
+      WHITELIST_IPS: "${WHITELIST_IPS:-127.0.0.1}"
+      ACCESS_LIMIT_PER_DAY: "${ACCESS_LIMIT_PER_DAY:-10}"
+    command: ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000", "--graceful-timeout", "30"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/docs', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     depends_on:
       - wtian-redis
+    logging: *default-logging
+
   wtian-nginx:
     container_name: wtian-nginx
-    image: nginx
+    image: "${NGINX_IMAGE:-nginx:1.27}"
+    restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx/dist:/usr/share/nginx/html
-      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/dist:/usr/share/nginx/html:ro
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/logs:/var/log/nginx
-      - ./nginx/conf.d:/etc/nginx/conf.d
-    depends_on:
-      - wtian-redis
-      - wtian-api
-  #wtian-mysql:
-  #  container_name: wtian-mysql
-  #  image: mysql:5.7
-  #  ports:
-  #    - "13333:3306"
-  #  volumes:
-  #    - ./mysql/conf:/etc/mysql/conf.d
-  #    - ./mysql/logs:/logs
-  #    - ./mysql/data:/var/lib/mysql
-  #    - ./mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d  
-  #  command: [
-  #        'mysqld',
-  #        '--innodb-buffer-pool-size=80M',
-  #        '--character-set-server=utf8mb4',
-  #        '--collation-server=utf8mb4_unicode_ci',
-  #        '--default-time-zone=+8:00',
-  #        '--lower-case-table-names=1'
-  #      ]
-  #  environment:
-  #    MYSQL_DATABASE: 'wtian'
-  #    MYSQL_ROOT_PASSWORD: password
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    logging: *default-logging

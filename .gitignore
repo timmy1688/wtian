@@ -1,6 +1,7 @@
 __pycache__/
 logs/
 .env
+.deploy.env
 deploy.sh
 api/run-tm.sh
 

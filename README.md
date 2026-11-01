@@ -4,22 +4,23 @@
 [![Forks](https://img.shields.io/github/forks/timmy1688/wtian?style=social)](https://github.com/timmy1688/wtian/network/members)
 [![License](https://img.shields.io/github/license/timmy1688/wtian)](LICENSE) <!-- 如果有LICENSE文件，请补充，否则删除这行 -->
 
-一个将**大语言模型 (LLM)** 与**中国传统文化《周易》（I Ching）** 深度结合的AI问卦/解卦应用。
+一个把**传统命理算法**、**典籍原文**与**大语言模型**结合起来的八字排盘与六爻占卜应用。
 
-通过自然语言与AI对话，你可以像古代贤者一样"问天"——求卦、解卦、预测运势、人生建议，甚至结合现代事件进行周易解读。
+排盘、起卦、取用全部由程序依古法推算，结果确定可复现；大模型只在这些结果之上，引用《周易》《滴天髓》《穷通宝鉴》原文做解读。
 
 ## 🌐 在线体验
 
-立即体验问天AI：[https://wtian.cloud/](https://wtian.cloud/)
+[https://wtian.cloud/](https://wtian.cloud/)（兼容手机端）
 
 ## 🌟 项目特色
 
-- **传统算法与现代AI融合**：核心测算公式经过多部经典易经书籍总结提炼，保证算法的古典韵味与精准度
-- **大模型深度分析**：利用大语言模型进行智能解卦，默认接入 DeepSeek（OpenAI 兼容协议，可替换为其他 LLM），提供专业而富有洞见的解读
-- **LangChain框架集成**：应用LangChain框架优化提示词工程，提升AI问卦的准确性和表达质量
-- **多样化起卦方式**：支持手动输入、随机摇卦、报数起卦、时间起卦等多种传统起卦方法
-- **完整的前后端分离架构**：前端 Vue3 + Element Plus，后端 FastAPI + LangChain
-- **Docker一键部署**：轻松本地运行或云部署，支持多模型切换、历史记录、卦象可视化
+- **代码算、模型讲**：四柱、藏干、十神、旺衰喜用、大运流年、本卦变卦与动爻取用全部由自研算法完成，模型不做任何「心算」
+- **引经据典**：内置 64 卦 / 384 爻原文与《滴天髓》《穷通宝鉴》，按命盘与卦象确定性检索，解读只能引用给定原文
+- **八字排盘**：公历 / 农历输入，节气精确定月，五行力量量化、日主旺衰、喜用神、合冲刑害、十年大运与流年
+- **六爻占卜**：三枚铜钱摇卦，按朱熹《易学启蒙·考变占》定位应占之辞
+- **流式解读**：DeepSeek（OpenAI 兼容协议，可替换其他模型）SSE 流式输出，约 1 秒出首字；提示词按「通用 + 领域 + 关注方向」模块组装，配有离线检查与在线评测
+- **极简道家风格界面**：玄黑、宋体、留白，桌面与手机端自适应
+- **一键部署**：`./wtian.sh deploy` 完成构建、推送镜像、发布前后端、证书续期钩子与健康检查
 
 ## 📸 效果展示
 
@@ -29,14 +30,17 @@
 ### 八字排盘
 ![八字排盘](images/bazi_paipan.png)
 
-### 八字分析
-![八字分析](images/bazi_fenxi.png)
+### 八字解读
+![八字解读](images/bazi_fenxi.png)
 
-### 八卦起卦
-![八卦起卦](images/bagua_qigua.png)
+### 六爻起卦
+![六爻起卦](images/bagua_qigua.png)
 
-### 八卦分析
-![八卦分析](images/bagua_fenxi.png)
+### 六爻解读
+![六爻解读](images/bagua_fenxi.png)
+
+### 手机端
+<img src="images/mobile.png" alt="手机端" width="320">
 
 ## 🏗️ 软件架构
 
@@ -49,8 +53,8 @@ wtian/
 │   ├── prompts/  # 提示词模块
 │   ├── utils/    # 大模型客户端、SSE、限流、日志
 │   └── evals/    # 离线检查与在线评测
-├── ui/           # Vue3 前端（Vue CLI + Element Plus）
-├── docker/       # Docker Compose 配置
+├── ui/           # Vue3 前端（Vue CLI + Ant Design Vue）
+├── docker/       # 生产部署：docker-compose、nginx、证书续期钩子
 ├── docs/         # 文档（算法说明）
 └── wtian.sh      # 统一脚本入口
 ```
@@ -80,29 +84,47 @@ wtian/
 
 技术栈：
 - 后端：Python 3.10+、FastAPI、LangChain、Pydantic
-- 前端：Vue 3、Pinia、Vue Router、Element Plus
-- 部署：Docker + Docker Compose
+- 前端：Vue 3、Vue Router、Ant Design Vue
+- 部署：Docker Compose（redis + api + nginx），Let's Encrypt 证书
 - LLM：DeepSeek（deepseek-v4-flash，通过 DEEPSEEK_API_KEY 配置，兼容任意 OpenAI 协议模型）
 
 ## 🚀 安装教程
 
 所有常用操作都通过根目录的 `wtian.sh` 完成，`./wtian.sh help` 查看全部命令。
 
-### 方式一：Docker 部署
+### 方式一：服务器部署
 
-```bash
-git clone https://github.com/timmy1688/wtian.git
-cd wtian
+服务器目录结构（部署目录默认为 `~`）：
 
-# docker-compose 从 docker/.env 读取 DEEPSEEK_API_KEY
-echo "DEEPSEEK_API_KEY=sk-..." > docker/.env
-
-./wtian.sh build-api      # 构建并推送后端镜像（tag 默认当天日期，镜像名可用 IMAGE 覆盖）
-./wtian.sh build-ui       # 构建前端到 ui/dist，放到 docker/nginx/dist 由 nginx 托管
-./wtian.sh restart        # 在 docker/ 下重启全部容器
+```
+~/docker-compose.yml        # 来自 docker/docker-compose.yml，由 deploy 自动上传
+~/.env                      # 密钥与镜像版本（chmod 600），参考 docker/.env.example
+~/nginx/conf/nginx.conf     # 来自 docker/nginx/conf/nginx.conf，由 deploy 自动上传
+~/nginx/dist/               # 前端静态文件，同时作为 certbot webroot
+~/redis/conf/redis.conf     # requirepass 与 .env 中 RD_PASSWORD 一致
 ```
 
-部署前端到远程服务器：`DEPLOY_HOST=user@host DEPLOY_PORT=22 ./wtian.sh deploy-ui`。
+首次准备：
+
+1. 服务器安装 Docker（含 compose 插件）与 certbot，签发证书：
+   `sudo certbot certonly --webroot -w ~/nginx/dist -d wtian.cloud -d www.wtian.cloud`
+2. 在服务器部署目录创建 `.env`（参考 `docker/.env.example`）
+3. 本地 `cp .deploy.env.example .deploy.env`，填写服务器地址与 SSH 端口
+
+发布：
+
+```bash
+./wtian.sh deploy            # 构建并推送镜像 → 构建前端 → 发布后端 → 发布前端 → 检查状态
+./wtian.sh deploy-api TAG    # 只切换后端镜像版本（同时更新 compose / nginx 配置）
+./wtian.sh deploy-ui         # 只发布前端（自动备份，保留最近 3 份）
+./wtian.sh status            # 容器状态、证书到期时间、接口连通性
+```
+
+`deploy-api` 会安装 certbot 续期钩子 `/etc/letsencrypt/renewal-hooks/deploy/reload-wtian-nginx.sh`，
+证书自动续期后重载 nginx（nginx 只在启动或重载时读取证书）。
+
+回滚：后端把服务器 `.env` 中的 `API_TAG` 改回旧版本后执行 `sudo docker compose up -d`；
+前端从 `~/nginx/dist-bak*` 拷回 `~/nginx/dist`。
 
 ### 方式二：本地开发运行
 
@@ -122,11 +144,11 @@ cp api/.env.example api/.env   # 填写 DEEPSEEK_API_KEY
 
 ## 📖 使用说明
 
-1. 打开网页，进入“问天”页面
-2. 输入你的问题（如“明年事业运势如何？”）
-3. 选择起卦方式（默认AI智能起卦）
-4. AI 将自动为你起卦、变卦、解卦，并结合大模型给出深度解读
-5. 支持导出卦象、保存历史记录
+**八字**：选择公历或农历、性别、出生日期与时辰、关注方向 → 「开始排盘」查看四柱、五行、大运 → 「详批命盘」获取解读。
+
+**六爻**：选择性别与占卜事项，可填写具体问题 → 「诚心起卦」得到本卦、变卦与动爻 → 「解卦」获取解读。
+
+解读每个 IP 每日有次数限制（`ACCESS_LIMIT_PER_DAY`），内容仅供娱乐参考。
 
 ## 🤝 参与贡献
 
