@@ -15,6 +15,22 @@
         <router-link :to="{ name: 'Bazi' }" class="hero-btn hero-btn--primary">排八字</router-link>
         <router-link :to="{ name: 'Gua' }" class="hero-btn hero-btn--ghost">起一卦</router-link>
       </div>
+
+      <!-- 鸣谢 -->
+      <aside class="thanks" aria-label="鸣谢">
+        <span class="seal thanks__seal" aria-hidden="true">鸣谢</span>
+        <div class="thanks__body">
+          <p class="thanks__text">
+            感谢本站易经顾问 <span class="thanks__name">李*儒</span> 先生的鼎力支持，<br />
+            并慷慨资助本站服务器费用，谨致谢忱。
+          </p>
+          <p class="thanks__donate">
+            如您认同本平台，欢迎自愿赞助，请邮件联系
+            <a :href="`mailto:${DONATE_EMAIL}?subject=问天赞助`" class="thanks__mail">{{ DONATE_EMAIL }}</a>
+            · <a href="#sponsor-note" class="thanks__note-link" @click.prevent="scrollToSponsorNote">赞助说明</a>
+          </p>
+        </div>
+      </aside>
     </section>
 
     <!-- 二门 -->
@@ -47,11 +63,22 @@
         本站所有命理与占卜内容<strong>仅供娱乐参考</strong>，不构成任何建议，亦不可作为决策依据。
         请理性看待，切勿迷信——命运终究在自己手中。
       </p>
+      <p id="sponsor-note" class="disclaimer__sponsor">
+        <strong>关于赞助：</strong>本站为个人开源项目，全部功能免费开放。赞助完全出于自愿，仅用于服务器等运营开支；
+        赞助与否不影响任何功能的使用，亦不附带任何命理服务或结果承诺。本站不属于慈善组织，赞助不是慈善捐赠，不开具捐赠票据。
+        请勿通过邮件发送身份证号、银行卡号、密码等敏感信息；本站不会主动索要钱款，请谨防冒充本站的诈骗。
+      </p>
     </section>
   </div>
 </template>
 
 <script setup>
+const DONATE_EMAIL = '593817844@qq.com';
+
+const scrollToSponsorNote = () => {
+  document.getElementById('sponsor-note')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
 const gates = [
   {
     route: 'Bazi',
@@ -76,7 +103,7 @@ const tenets = [
   },
   {
     title: '以经为据',
-    desc: '解读只引《周易》《滴天髓》《穷通宝鉴》原文，有出处可查，不作杜撰。',
+    desc: '解读只引《周易》《滴天髓》《穷通宝鉴》《鬼谷子两头钳》原文，有出处可查，不作杜撰。',
   },
   {
     title: '以人为本',
@@ -265,6 +292,64 @@ const tenets = [
   color: var(--text-muted);
 }
 
+/* ========== Thanks (plaque in the hero) ========== */
+.thanks {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 580px;
+  margin-top: 44px;
+  padding: 16px 28px 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(236, 230, 218, 0.02);
+  text-align: left;
+}
+
+.thanks__seal {
+  flex-shrink: 0;
+}
+
+.thanks__text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 2;
+  letter-spacing: 2px;
+  color: var(--text-soft);
+}
+
+.thanks__name {
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 4px;
+}
+
+.thanks__donate {
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12px;
+  line-height: 1.9;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.thanks__mail {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(195, 164, 110, 0.35);
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+  word-break: break-all;
+}
+
+@media (hover: hover) {
+  .thanks__mail:hover {
+    color: var(--text);
+    border-color: var(--text);
+  }
+}
+
 /* ========== Disclaimer ========== */
 .disclaimer {
   max-width: 560px;
@@ -274,6 +359,19 @@ const tenets = [
   letter-spacing: 1px;
   text-align: center;
   color: var(--text-muted);
+}
+
+.disclaimer__sponsor {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  scroll-margin-top: calc(var(--header-height) + 24px);
+}
+
+.thanks__note-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--line);
 }
 
 .disclaimer strong {
@@ -373,6 +471,25 @@ const tenets = [
     grid-template-columns: 1fr;
     gap: 28px;
     padding: 48px 8px 40px;
+  }
+
+  .thanks {
+    gap: 14px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 32px;
+    padding: 14px 16px 14px 14px;
+  }
+
+  .thanks__seal {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+
+  .thanks__text {
+    font-size: 13px;
+    letter-spacing: 1px;
   }
 }
 </style>

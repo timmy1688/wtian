@@ -60,6 +60,9 @@
             内容仅供娱乐参考，请理性看待 ·
             <a href="https://github.com/timmy1688/wtian" target="_blank" rel="noopener noreferrer">开源</a>
           </p>
+          <p class="footer-note footer-beian">
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">{{ ICP_BEIAN }}</a>
+          </p>
         </div>
       </footer>
 
@@ -90,6 +93,7 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import TaijiSymbol from './components/common/TaijiSymbol.vue';
 
 const MOBILE_BREAKPOINT = 768;
+const ICP_BEIAN = '粤ICP备2025410144号';
 
 // Keep in sync with the CSS variables in global.css
 const themeConfig = {
@@ -296,6 +300,14 @@ const isActive = (routeName) => route.name === routeName;
 
 .footer-note a:hover {
   color: var(--text);
+}
+
+.footer-beian {
+  margin-top: 6px;
+}
+
+.footer-beian a {
+  color: var(--text-muted);
 }
 
 /* ========== Mobile tab bar ========== */
