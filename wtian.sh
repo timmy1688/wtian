@@ -18,7 +18,7 @@ usage() {
   check              离线检查：排盘算法对照、经文与典籍数据、取用规则、提示词组装
   eval [--judge]     在线评测：固定案例调用真实模型（需 api/.env 中的 DEEPSEEK_API_KEY）
 数据
-  dianji [--huancun DIR]  从维基文库重新生成《滴天髓》《穷通宝鉴》数据（需 opencc-python-reimplemented）
+  dianji [--huancun DIR]  重新生成《滴天髓》《穷通宝鉴》（维基文库）与《鬼谷子两头钳》数据（需 opencc-python-reimplemented）
 构建
   build-api [TAG]    构建并推送后端镜像，TAG 默认当天日期（镜像名可用 IMAGE 覆盖）
   build-ui           构建前端静态文件到 ui/dist
@@ -154,7 +154,8 @@ case "$cmd" in
     ;;
   dianji)
     cd "$ROOT/api"
-    exec "$PYTHON" -m dianji.goujian "$@"
+    "$PYTHON" -m dianji.goujian "$@"
+    exec "$PYTHON" -m dianji.goujian_liangtouqian "$@"
     ;;
   build-api)
     tag="${1:-$(date +%Y%m%d)}"

@@ -28,6 +28,7 @@ class PaipanResponse(BaseModel):
     shishen: list
     wuxing: dict
     chart: Optional[dict] = None
+    liangtouqian: Optional[dict] = None  # 《鬼谷子两头钳》年干时干所取之格
 
 
 class FenxiRequest(BaseModel):

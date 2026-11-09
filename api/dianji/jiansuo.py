@@ -1,10 +1,11 @@
 """
-八字典籍检索：按命盘特征确定性地选取《穷通宝鉴》《滴天髓》原文。
+八字典籍检索：按命盘特征确定性地选取《穷通宝鉴》《滴天髓》《鬼谷子两头钳》原文。
 
-不用向量检索：日干、月令、强弱、冲合、关注方向本身就是精确的索引键，
+不用向量检索：日干、月令、强弱、冲合、年干时干、关注方向本身就是精确的索引键，
 同一命盘每次取到的原文相同，便于评测校验模型引用是否出自所给原文。
 """
 from .ditiansui import cha_tiao, tiangan_lun
+from .liangtouqian import liangtouqian_duan
 from .qiongtong import qu_tiaohou
 
 # 月支 → 月序（寅月为正月）
@@ -40,6 +41,7 @@ def jiansuo_dianji(mingpan: dict, guanzhu: str) -> list:
     """
     按命盘选取典籍原文。顺序即优先级：调候 → 日干总论 → 关注方向 → 强弱 → 寒暖 → 冲。
     超出字数上限时从低优先级开始舍弃，前两段始终保留。
+    《鬼谷子两头钳》按年干、时干取格，另附在末尾，不占子平典籍的字数预算。
     :param guanzhu: 关注方向键，如 "career"
     :return: [{"chuchu": "穷通宝鉴·正月乙木", "wen": 原文, "zhu": 旧注或说明}]
     """
@@ -67,4 +69,8 @@ def jiansuo_dianji(mingpan: dict, guanzhu: str) -> list:
         xuanzhong.append(duan)
         yiyou.add(duan["wen"])
         zishu += changdu
+
+    liangtou = liangtouqian_duan(mingpan["pillars"][0]["ganzhi"][0], mingpan["pillars"][3]["ganzhi"], guanzhu)
+    if liangtou:
+        xuanzhong.append(liangtou)
     return xuanzhong

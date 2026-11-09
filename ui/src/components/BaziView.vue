@@ -204,6 +204,35 @@
           </ol>
         </div>
 
+        <div v-if="liangtou" class="liangtou">
+          <div class="liangtou__head">
+            <span class="liangtou__title">两头钳</span>
+            <span class="liangtou__hint">年干{{ liangtou.jian[0] }} · 时干{{ liangtou.jian[1] }} · {{ liangtou.gua }}卦</span>
+          </div>
+          <div class="liangtou__body">
+            <h3 class="liangtou__ge">{{ liangtou.geming }}</h3>
+            <p v-if="liangtouVerses.length" class="liangtou__poem">
+              <span v-for="(line, index) in liangtouVerses" :key="index">{{ line }}</span>
+            </p>
+            <p class="liangtou__hour">
+              <span class="liangtou__hour-label">时柱{{ liangtou.shizhu }} · {{ liangtou.shizhu_duan.xing }}</span>
+              <span class="liangtou__hour-name">「{{ liangtou.shizhu_duan.ming }}」</span>
+              <span v-if="liangtou.shizhu_duan.jie" class="liangtou__hour-note">{{ liangtou.shizhu_duan.jie }}</span>
+            </p>
+            <details class="liangtou__more">
+              <summary>判断与六亲诗</summary>
+              <p class="liangtou__verdict">{{ liangtou.panduan }}</p>
+              <dl class="liangtou__liuqin">
+                <div v-for="(poem, label) in liangtou.liuqin" :key="label" class="liangtou__liuqin-item">
+                  <dt>{{ label }}</dt>
+                  <dd>{{ poem }}</dd>
+                </div>
+              </dl>
+            </details>
+          </div>
+          <p class="liangtou__source">据《鬼谷子两头钳》以年干、时干取格，民间命书，诗意仅供参照</p>
+        </div>
+
         <div v-if="ai.phase.value === 'idle'" class="analyze-action">
           <a-button
             type="primary"
@@ -336,6 +365,16 @@ const favorableText = computed(() => {
 });
 
 const dayunSteps = computed(() => chart.value?.dayun?.steps || []);
+const liangtou = computed(() => baziResult.value?.liangtouqian || null);
+// Two seven-character lines per row, e.g. "画楼独倚夕阳天，望断天涯海角边。"
+const liangtouVerses = computed(() => {
+  const lines = (liangtou.value?.geshi || '').split(/[，。]/).filter(Boolean);
+  const rows = [];
+  for (let i = 0; i < lines.length; i += 2) {
+    rows.push(lines.slice(i, i + 2).join('，') + '。');
+  }
+  return rows;
+});
 
 const currentDayun = computed(() => chart.value?.current_dayun?.ganzhi || '');
 
@@ -699,6 +738,160 @@ const fetchFenxi = async () => {
 
   .dayun__ganzhi {
     font-size: 17px;
+  }
+}
+
+/* ========== Liang tou qian (year stem + hour stem verse) ========== */
+.liangtou {
+  margin-bottom: 40px;
+}
+
+.liangtou__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin-bottom: 14px;
+}
+
+.liangtou__title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  color: var(--text);
+}
+
+.liangtou__hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.liangtou__body {
+  padding: 22px 20px 18px;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  text-align: center;
+}
+
+.liangtou__ge {
+  margin: 0 0 14px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  color: var(--accent);
+}
+
+.liangtou__poem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 18px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  letter-spacing: 2px;
+  color: var(--text-soft);
+}
+
+.liangtou__hour {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.liangtou__hour-name {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--text);
+}
+
+.liangtou__more {
+  margin-top: 16px;
+  text-align: left;
+}
+
+.liangtou__more summary {
+  width: fit-content;
+  margin: 0 auto;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.liangtou__more summary::-webkit-details-marker {
+  display: none;
+}
+
+.liangtou__more summary::after {
+  content: ' ▾';
+}
+
+.liangtou__more[open] summary::after {
+  content: ' ▴';
+}
+
+.liangtou__verdict {
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--text-soft);
+}
+
+.liangtou__liuqin {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin: 0;
+}
+
+.liangtou__liuqin-item dt {
+  margin-bottom: 2px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+
+.liangtou__liuqin-item dd {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-soft);
+}
+
+.liangtou__source {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .liangtou__body {
+    padding: 18px 4px 14px;
+  }
+
+  .liangtou__ge {
+    font-size: 20px;
+    letter-spacing: 6px;
+  }
+
+  .liangtou__poem {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  .liangtou__liuqin {
+    grid-template-columns: 1fr;
   }
 }
 

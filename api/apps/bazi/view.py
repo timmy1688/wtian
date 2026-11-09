@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
+from dianji.liangtouqian import cha_ge
 from suanfa.lifa import ShengriCuowu, jiexi_shengri, nongli_miaoshu, pai_sizhu
 from suanfa.mingpan import biaomian_wuxing_zhanbi, fenxi_sizhu, pai_mingpan, sizhu_tiangan_shishen
 from utils.access_limit import check_ip_access
@@ -14,7 +15,7 @@ app = APIRouter()
 
 
 def paipan_jieguo(riqi_str: str, shi_nongli: bool, xingbie: str, shi_runyue: bool = False) -> dict:
-    """排盘接口的返回内容：四柱、天干十神、表面五行占比、公农历描述与完整命盘。"""
+    """排盘接口的返回内容：四柱、天干十神、表面五行占比、公农历描述、完整命盘与两头钳格局。"""
     chusheng = jiexi_shengri(riqi_str, shi_nongli, shi_runyue)
     sizhu = pai_sizhu(chusheng)
     return {
@@ -24,6 +25,7 @@ def paipan_jieguo(riqi_str: str, shi_nongli: bool, xingbie: str, shi_runyue: boo
         "new_birth": f"{chusheng.year}年{chusheng.month}月{chusheng.day}日{chusheng.hour}时",
         "old_birth": nongli_miaoshu(chusheng),
         "chart": fenxi_sizhu(sizhu, xingbie, chusheng=chusheng),
+        "liangtouqian": cha_ge(sizhu[0][0], sizhu[3]),
     }
 
 

@@ -97,6 +97,12 @@ def render_classics(passages: list) -> str:
         return ""
     lines = ["<典籍>"]
     for passage in passages:
+        if "fenduan" in passage:
+            lines.append(f"- 《{passage['chuchu']}》（{passage['biaoti']}）：")
+            lines.extend(f"  {biaoqian}：{wen}" for biaoqian, wen in passage["fenduan"])
+            if passage["zhu"]:
+                lines.append(f"  旧注（时柱白话解）：{passage['zhu']}")
+            continue
         if passage["chuchu"].startswith("穷通宝鉴"):
             lines.append(f"- 《{passage['chuchu']}》：{passage['wen']}")
             if passage["zhu"]:
