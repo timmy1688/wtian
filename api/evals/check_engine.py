@@ -11,7 +11,7 @@
 """
 import random
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from lunar_python import Solar
 
@@ -22,6 +22,8 @@ from dianji.jiansuo import (
     CHONG_TIAOMU, GUANZHU_TIAOMU, HANNUAN_TIAOMU, WANGSHUAI_TIAOMU, YUEZHI_YUEXU, ZONGZISHU_SHANGXIAN,
     jiansuo_dianji,
 )
+from apps.ops.huizong import huizong, ye_mian_ziduan, zengjian
+from apps.ops.jishu import shanghai_today
 from dianji.liangtouqian import cha_ge, du_liangtouqian
 from dianji.qiongtong import qu_tiaohou
 from dianji.zhouyi import du_zhouyi
@@ -166,6 +168,47 @@ def check_liangtouqian():
     check(cha_ge("甲", "甲丑") is None, "liangtouqian rejects invalid pillar")
 
 
+def check_ops():
+    """计数汇总不连 Redis：上海日期、三十日对比、被挡住占比、月份增减，缺的日子是 0。"""
+    check(ye_mian_ziduan("home") == "open_home", "ops page home")
+    check(ye_mian_ziduan("bazi") == "open_bazi" and ye_mian_ziduan("gua") == "open_gua", "ops page names")
+    check(ye_mian_ziduan("ops") is None, "ops page rejects unknown")
+    check(shanghai_today(datetime(2026, 11, 13, 16, 30, tzinfo=timezone.utc)) == date(2026, 11, 14),
+          "shanghai date rolls forward at 16:00 UTC")
+    check(shanghai_today(datetime(2026, 11, 14, 15, 30, tzinfo=timezone.utc)) == date(2026, 11, 14),
+          "shanghai date stays on the same day before 16:00 UTC")
+
+    today = date(2026, 11, 14)
+    empty = huizong({}, today)
+    check(len(empty["days"]) == 30 and len(empty["table"]) == 30, "ops 30 rows")
+    check(all(row["open"] == 0 and row["xiangpi"] == 0 and row["blocked"] == 0 for row in empty["table"]),
+          "ops missing days are zero")
+    check(empty["line_note"] == "这三十日详批合计 0，与再往前三十日持平。", f"ops empty line note {empty['line_note']}")
+    check(empty["bar_note"] == "这三十日没有详批，也没有被挡住。", f"ops empty bar note {empty['bar_note']}")
+    check(empty["month_note"] == "本月打开与上月持平，详批与上月持平。", f"ops empty month note {empty['month_note']}")
+    check(empty["headline"][0]["text"] == "与昨天持平", "ops flat day")
+
+    store = {
+        "2026-11-14": {"open_home": 4, "xiangpi_bazi": 3, "blocked": 1},
+        "2026-11-13": {"open_home": 1, "xiangpi_bazi": 5},
+        "2026-10-05": {"xiangpi_gua": 2, "open_bazi": 2},
+    }
+    report = huizong(store, today)
+    check(report["headline"][0]["value"] == 4 and report["headline"][0]["text"] == "比昨天多 3", "ops open delta")
+    check(report["headline"][3]["value"] == 3 and report["headline"][3]["parts"][0]["value"] == 3
+          and report["headline"][3]["parts"][1]["value"] == 0, "ops xiangpi split")
+    check(report["headline"][3]["text"] == "比昨天少 2", "ops xiangpi delta")
+    # 昨天也落在这三十日和本月里，所以合计把昨天算进去
+    check(report["line_note"] == "这三十日详批合计 8，比再往前三十日多了 6。", f"ops line note {report['line_note']}")
+    check(report["bar_note"] == "被挡住占详批与被挡住之和的 11.1%。", f"ops bar note {report['bar_note']}")
+    check(report["month_note"] == "本月打开比上月多了 3，详批比上月多了 6。", f"ops month note {report['month_note']}")
+    check(report["table"][0]["date"] == "2026-11-14" and report["days"][0]["date"] == "2026-10-16",
+          "ops table is newest first and the chart is oldest first")
+    check(zengjian(1, 4, "昨天") == "比昨天少 3", "ops delta wording")
+    quarter = huizong({"2026-11-14": {"xiangpi_bazi": 3, "blocked": 1}}, today)
+    check(quarter["bar_note"] == "被挡住占详批与被挡住之和的 25%。", f"ops quarter note {quarter['bar_note']}")
+
+
 def check_prompts():
     for key in BAZI_FOCUS.values():
         check("本次关注" in build_system_prompt("bazi", key), f"bazi focus prompt {key}")
@@ -187,7 +230,7 @@ def check_prompts():
 
 def main() -> int:
     for step in (check_bazi_engine, check_zhouyi, check_reading_rules, check_classics, check_liangtouqian,
-                 check_prompts):
+                 check_ops, check_prompts):
         before = len(failures)
         step()
         status = "ok" if len(failures) == before else f"{len(failures) - before} failures"

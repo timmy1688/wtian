@@ -20,14 +20,13 @@ usage() {
 数据
   dianji [--huancun DIR]  重新生成《滴天髓》《穷通宝鉴》（维基文库）与《鬼谷子两头钳》数据（需 opencc-python-reimplemented）
 构建
-  build-api [TAG]    构建并推送后端镜像，TAG 默认当天日期（镜像名可用 IMAGE 覆盖）
-  build-ui           构建前端静态文件到 ui/dist
+  build-api [TAG]    构建前端并打进后端镜像，然后推送。TAG 默认当天日期（镜像名可用 IMAGE 覆盖）
+  build-ui           只构建前端静态文件到 ui/dist（发布时会自动做）
 部署（服务器信息读取 .deploy.env，参考 .deploy.env.example）
-  deploy [TAG]       一键发布：build-api → build-ui → deploy-api → deploy-ui
+  deploy [TAG]       一键发布：构建前端打进镜像 → 发布镜像 → 更新 compose / nginx → 检查状态
                      DEPLOY_VIA=ssh 时不经镜像仓库，本地构建后用 ship-api 直传服务器
   ship-api TAG       把本地镜像经 SSH 直接导入服务器（镜像仓库推送不稳定时使用）
   deploy-api TAG     上传 compose 与 nginx 配置，切换后端镜像版本并重启，安装证书续期钩子
-  deploy-ui          备份线上前端后同步 ui/dist（无需重启 nginx）
   status             查看线上容器、证书有效期与接口状态
 EOF
 }
@@ -49,6 +48,12 @@ remote() {
   ssh -p "$DEPLOY_PORT" "$DEPLOY_HOST" "$@"
 }
 
+assert_image_clean() {
+  local tag="$1" secret
+  secret=$(docker run --rm --entrypoint python "$IMAGE:$tag" -c "import os; print('yes' if os.path.exists('/wtian/api/.env') else 'no')")
+  [ "$secret" = "no" ] || { echo "image contains api/.env, not shipping" >&2; exit 1; }
+}
+
 ship_api() {
   local tag="$1"
   echo "==> ship $IMAGE:$tag over ssh"
@@ -67,6 +72,12 @@ deploy_api() {
     && { [ ! -f nginx/conf/nginx.conf ] || sudo cp -p nginx/conf/nginx.conf nginx/conf/nginx.conf.bak$stamp; }"
   remote "sudo tee $DEPLOY_DIR/docker-compose.yml >/dev/null" < "$ROOT/docker/docker-compose.yml"
   remote "sudo tee $DEPLOY_DIR/nginx/conf/nginx.conf >/dev/null" < "$ROOT/docker/nginx/conf/nginx.conf"
+  remote "sudo tee $DEPLOY_DIR/nginx/conf/api-proxy.inc >/dev/null" < "$ROOT/docker/nginx/conf/api-proxy.inc"
+  # Do not overwrite an existing allow list: it holds the operator's own addresses
+  if ! remote "test -f $DEPLOY_DIR/nginx/conf/ops-allow.conf"; then
+    echo "==> create ops-allow.conf ( /ops stays closed until an allow line is added )"
+    remote "sudo tee $DEPLOY_DIR/nginx/conf/ops-allow.conf >/dev/null" < "$ROOT/docker/nginx/conf/ops-allow.conf"
+  fi
 
   echo "==> install certbot deploy hook"
   remote "sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-wtian-nginx.sh >/dev/null \
@@ -91,19 +102,6 @@ deploy_api() {
   exit 1
 }
 
-deploy_ui() {
-  [ -f "$ROOT/ui/dist/index.html" ] || { echo "ui/dist not found, run ./wtian.sh build-ui first" >&2; exit 1; }
-  local stamp
-  stamp="$(date +%Y%m%d%H%M)"
-  echo "==> back up live frontend as nginx/dist-bak$stamp (keep latest 3)"
-  remote "cd $DEPLOY_DIR/nginx && sudo cp -a dist dist-bak$stamp \
-    && ls -d dist-bak* | sort | head -n -3 | xargs -r sudo rm -rf"
-  # Sync in place: nginx bind-mounts this directory, so it must not be replaced
-  echo "==> sync ui/dist"
-  rsync -a --delete-after --delay-updates --exclude '.well-known/' \
-    -e "ssh -p $DEPLOY_PORT" "$ROOT/ui/dist/" "$DEPLOY_HOST:$DEPLOY_DIR/nginx/dist/"
-}
-
 show_status() {
   remote "sudo docker ps --filter name=wtian --format '{{.Names}}\t{{.Image}}\t{{.Status}}'"
   echo "--- certificate"
@@ -113,6 +111,7 @@ show_status() {
   curl -s -o /dev/null -w "home  %{http_code}\n" "$SITE_URL/"
   curl -s -o /dev/null -w "api   %{http_code}\n" -X POST -H 'Content-Type: application/json' \
     -d '{"birth":"19900115 10","gender":"boy","is_lunar":false}' "$SITE_URL/api/bazi/paipan"
+  curl -s -o /dev/null -w "ops   %{http_code}\n" "$SITE_URL/ops"
 }
 
 load_api_env() {
@@ -159,7 +158,9 @@ case "$cmd" in
     ;;
   build-api)
     tag="${1:-$(date +%Y%m%d)}"
-    docker build -t "$IMAGE:$tag" "$ROOT/api"
+    "$0" build-ui
+    docker build -f "$ROOT/api/Dockerfile" -t "$IMAGE:$tag" "$ROOT"
+    assert_image_clean "$tag"
     docker push "$IMAGE:$tag"
     echo "pushed $IMAGE:$tag"
     ;;
@@ -170,15 +171,16 @@ case "$cmd" in
   deploy)
     tag="${1:-$(date +%Y%m%d)}"
     load_deploy_env
+    "$0" build-ui
+    docker build -f "$ROOT/api/Dockerfile" -t "$IMAGE:$tag" "$ROOT"
+    assert_image_clean "$tag"
     if [ "${DEPLOY_VIA:-registry}" = "ssh" ]; then
-      docker build -t "$IMAGE:$tag" "$ROOT/api"
       ship_api "$tag"
     else
-      "$0" build-api "$tag"
+      docker push "$IMAGE:$tag"
+      echo "pushed $IMAGE:$tag"
     fi
-    "$0" build-ui
     deploy_api "$tag"
-    deploy_ui
     show_status
     ;;
   ship-api)
@@ -192,8 +194,8 @@ case "$cmd" in
     deploy_api "$tag"
     ;;
   deploy-ui)
-    load_deploy_env
-    deploy_ui
+    echo "pages are baked into the API image; run ./wtian.sh deploy" >&2
+    exit 1
     ;;
   status)
     load_deploy_env

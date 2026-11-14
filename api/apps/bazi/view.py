@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 
 from dianji.liangtouqian import cha_ge
+from apps.ops.jishu import ji
 from suanfa.lifa import ShengriCuowu, jiexi_shengri, nongli_miaoshu, pai_sizhu
 from suanfa.mingpan import biaomian_wuxing_zhanbi, fenxi_sizhu, pai_mingpan, sizhu_tiangan_shishen
 from utils.access_limit import check_ip_access
@@ -35,6 +36,7 @@ async def paipan(request: PaipanRequest):
         jieguo = paipan_jieguo(request.birth, request.is_lunar, request.gender.value, request.is_leap_month)
     except ShengriCuowu as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    await ji("paipan")
     return {"gender": request.gender, **jieguo}
 
 
@@ -56,8 +58,10 @@ def build_fenxi_messages(request: FenxiRequest) -> list:
 async def bazifenxi(request: FenxiRequest, ip_check=Depends(check_ip_access)):
     logger.info(ip_check)
     if ip_check["status"] == "limited":
+        await ji("blocked")
         return ip_check
     response = await chat.ainvoke(build_fenxi_messages(request))
+    await ji("xiangpi_bazi")
     return {
         "status": "success",
         "result": response.content
@@ -68,5 +72,6 @@ async def bazifenxi(request: FenxiRequest, ip_check=Depends(check_ip_access)):
 async def bazifenxi_stream(request: FenxiRequest, ip_check=Depends(check_ip_access)):
     logger.info(ip_check)
     if ip_check["status"] == "limited":
+        await ji("blocked")
         return ip_check
-    return sse_response(build_fenxi_messages(request), tag="bazi")
+    return sse_response(build_fenxi_messages(request), tag="bazi", on_done=lambda: ji("xiangpi_bazi"))

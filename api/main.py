@@ -1,8 +1,12 @@
 import os
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from utils import middleware,exceptions,redis_tools
 from fastapi.middleware.cors import CORSMiddleware
 from apps.bazi.view import app as bazi_app
+from apps.ops.view import app as ops_app
 from apps.zhanbu.view import app as zhanbu_app
 
 
@@ -59,10 +63,30 @@ def create_app() -> FastAPI:
         allow_headers=["*"],  # 允许所有请求头
     )
 
-    # 注册路由
+    # 注册路由。页面兜底放在最后，避免盖住 /docs 和接口。
     app.include_router(bazi_app)
     app.include_router(zhanbu_app)
+    app.include_router(ops_app)
+    _mount_pages(app)
 
     return app
+
+
+def _mount_pages(app: FastAPI) -> None:
+    """镜像里带了前端构建结果时，由接口同时提供页面。开发时没有这个目录，仍用前端开发服务器。"""
+    dist = Path(os.environ.get("UI_DIST", Path(__file__).resolve().parent / "ui_dist"))
+    index = dist / "index.html"
+    if not index.is_file():
+        return
+    root = dist.resolve()
+
+    @app.get("/", include_in_schema=False)
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def pages(full_path: str = ""):
+        if full_path:
+            candidate = (dist / full_path).resolve()
+            if candidate.is_file() and (candidate == root or root in candidate.parents):
+                return FileResponse(candidate)
+        return FileResponse(index)
 
 app = create_app()

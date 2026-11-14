@@ -60,8 +60,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      # dist is only the certbot webroot now; pages are served by the API image
       - ./nginx/dist:/usr/share/nginx/html:ro
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf/api-proxy.inc:/etc/nginx/api-proxy.inc:ro
+      - ./nginx/conf/ops-allow.conf:/etc/nginx/ops-allow.conf:ro
       - ./nginx/logs:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
     logging: *default-logging

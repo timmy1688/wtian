@@ -84,7 +84,7 @@ wtian/
 技术栈：
 - 后端：Python 3.10+、FastAPI、LangChain、Pydantic
 - 前端：Vue 3、Vue Router、Ant Design Vue
-- 部署：Docker Compose（redis + api + nginx），Let's Encrypt 证书
+- 部署：Docker Compose（redis + api + nginx）。页面打进 api 镜像，nginx 只负责证书和反代
 - LLM：DeepSeek（deepseek-v4-flash，通过 DEEPSEEK_API_KEY 配置，兼容任意 OpenAI 协议模型）
 
 ## 🚀 安装教程
@@ -99,7 +99,8 @@ wtian/
 ~/docker-compose.yml        # 来自 docker/docker-compose.yml，由 deploy 自动上传
 ~/.env                      # 密钥与镜像版本（chmod 600），参考 docker/.env.example
 ~/nginx/conf/nginx.conf     # 来自 docker/nginx/conf/nginx.conf，由 deploy 自动上传
-~/nginx/dist/               # 前端静态文件，同时作为 certbot webroot
+~/nginx/dist/               # 只作 certbot webroot，页面在 api 镜像里
+~/nginx/conf/ops-allow.conf # 允许打开 /ops 的地址，每行一条 allow；没有 allow 时公网打不开
 ~/redis/conf/redis.conf     # requirepass 与 .env 中 RD_PASSWORD 一致
 ```
 
@@ -113,17 +114,19 @@ wtian/
 发布：
 
 ```bash
-./wtian.sh deploy            # 构建并推送镜像 → 构建前端 → 发布后端 → 发布前端 → 检查状态
-./wtian.sh deploy-api TAG    # 只切换后端镜像版本（同时更新 compose / nginx 配置）
-./wtian.sh deploy-ui         # 只发布前端（自动备份，保留最近 3 份）
+./wtian.sh deploy            # 构建前端并打进镜像 → 发布镜像 → 更新 compose / nginx → 检查状态
+./wtian.sh deploy-api TAG    # 只切换镜像版本（同时更新 compose / nginx 配置）
 ./wtian.sh status            # 容器状态、证书到期时间、接口连通性
 ```
 
-`deploy-api` 会安装 certbot 续期钩子 `/etc/letsencrypt/renewal-hooks/deploy/reload-wtian-nginx.sh`，
+`deploy` 会安装 certbot 续期钩子 `/etc/letsencrypt/renewal-hooks/deploy/reload-wtian-nginx.sh`，
 证书自动续期后重载 nginx（nginx 只在启动或重载时读取证书）。
 
-回滚：后端把服务器 `.env` 中的 `API_TAG` 改回旧版本后执行 `sudo docker compose up -d`；
-前端从 `~/nginx/dist-bak*` 拷回 `~/nginx/dist`。
+`/ops` 不在导航里。公网默认打不开，在服务器 `~/nginx/conf/ops-allow.conf` 加上 `allow 你的IP;` 后执行
+`sudo docker exec wtian-nginx nginx -s reload`。
+
+回滚：把服务器 `.env` 中的 `API_TAG` 改回旧版本，并把 `docker-compose.yml.bak*`、`nginx/conf/nginx.conf.bak*` 拷回去，
+再执行 `sudo docker compose up -d`。只换镜像、不换 nginx 配置时，旧镜像不提供页面，站点会打不开。
 
 ### 方式二：本地开发运行
 

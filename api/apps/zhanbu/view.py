@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 
+from apps.ops.jishu import ji
 from suanfa.qigua import pai_gua, qi_gua
 from utils.access_limit import check_ip_access
 from utils.commom import chat, logger
@@ -52,9 +53,11 @@ def build_analysis_messages(request: AnalysisRequest, hexagram: dict) -> list:
 # 起卦接口
 @app.post("/zhanbu/cast_hexagram")
 async def cast_hexagram():
+    hexagram = qi_gua()
+    await ji("qigua")
     return {
         "status": "success",
-        "hexagram_data": qi_gua()
+        "hexagram_data": hexagram
     }
 
 
@@ -62,9 +65,11 @@ async def cast_hexagram():
 async def analyze_hexagram(request: AnalysisRequest, ip_check=Depends(check_ip_access)):
     logger.info(ip_check)
     if ip_check["status"] == "limited":
+        await ji("blocked")
         return ip_check
     hexagram = rebuild_hexagram(request.hexagram_data)
     response = await chat.ainvoke(build_analysis_messages(request, hexagram))
+    await ji("xiangpi_gua")
     return {
         "status": "success",
         "gender": request.gender,
@@ -80,6 +85,8 @@ async def analyze_hexagram(request: AnalysisRequest, ip_check=Depends(check_ip_a
 async def analyze_hexagram_stream(request: AnalysisRequest, ip_check=Depends(check_ip_access)):
     logger.info(ip_check)
     if ip_check["status"] == "limited":
+        await ji("blocked")
         return ip_check
     hexagram = rebuild_hexagram(request.hexagram_data)
-    return sse_response(build_analysis_messages(request, hexagram), tag="zhanbu")
+    return sse_response(build_analysis_messages(request, hexagram), tag="zhanbu",
+                        on_done=lambda: ji("xiangpi_gua"))

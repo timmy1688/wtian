@@ -26,7 +26,7 @@ def _event(payload: dict) -> str:
     return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
-async def _stream_llm(messages: list[BaseMessage], tag: str) -> AsyncIterator[str]:
+async def _stream_llm(messages: list[BaseMessage], tag: str, on_done=None) -> AsyncIterator[str]:
     total_chars = 0
     try:
         async for chunk in chat.astream(messages):
@@ -36,10 +36,18 @@ async def _stream_llm(messages: list[BaseMessage], tag: str) -> AsyncIterator[st
                 yield _event({"type": "delta", "text": text})
         logger.info(f"llm stream finished tag={tag} chars={total_chars}")
         yield _event({"type": "done"})
+        # Count only a finished reading. A limit rejection never reaches here.
+        if on_done is not None:
+            try:
+                await on_done()
+            except Exception:
+                logger.exception(f"post-stream hook failed tag={tag}")
     except Exception as exc:
         logger.exception(f"llm stream failed tag={tag}: {exc}")
         yield _event({"type": "error", "message": "AI 解读服务暂时不可用，请稍后再试"})
 
 
-def sse_response(messages: list[BaseMessage], tag: str) -> StreamingResponse:
-    return StreamingResponse(_stream_llm(messages, tag), media_type="text/event-stream", headers=SSE_HEADERS)
+def sse_response(messages: list[BaseMessage], tag: str, on_done=None) -> StreamingResponse:
+    return StreamingResponse(
+        _stream_llm(messages, tag, on_done), media_type="text/event-stream", headers=SSE_HEADERS)
+

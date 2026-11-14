@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Bazi from '../components/BaziView.vue';
 import Gua from '../components/GuaView.vue';
 import Home from '../components/HomeView.vue';
+import Ops from '../components/OpsView.vue';
 
 const SITE_NAME = '问天';
 
@@ -29,6 +30,12 @@ const routes = [
     meta: { title: '六爻占卜' },
   },
   {
+    path: '/ops',
+    name: 'Ops',
+    component: Ops,
+    meta: { title: '记数' },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'Home' },
   },
@@ -45,9 +52,27 @@ const router = createRouter({
   },
 });
 
+const PAGE_BEACON = { Home: 'home', Bazi: 'bazi', Gua: 'gua' };
+
 router.afterEach((to) => {
   const pageTitle = to.meta && to.meta.title;
   document.title = pageTitle ? `${pageTitle} - ${SITE_NAME}` : SITE_NAME;
+  const page = PAGE_BEACON[to.name];
+  if (!page) {
+    return;
+  }
+  const body = JSON.stringify({ page });
+  const url = '/api/ops/visit';
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+    return;
+  }
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+    keepalive: true,
+  }).catch(() => {});
 });
 
 export default router;

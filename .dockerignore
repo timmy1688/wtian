@@ -1,0 +1,11 @@
+.git
+**/__pycache__
+**/*.pyc
+**/.env
+api/.env
+docker/.env
+.env.*
+.deploy.env
+api/evals/output
+**/node_modules
+images
