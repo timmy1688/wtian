@@ -9,11 +9,7 @@ COPY api/requirements.txt /wtian/api/requirements.txt
 
 RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
-# 上海时区的日期依赖系统时区数据
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends tzdata \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
+# 基础镜像已带 tzdata，上海时区可直接用，不再单独 apt 安装
 COPY api/ /wtian/api
 COPY ui/dist /wtian/api/ui_dist
 
